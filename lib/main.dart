@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recycle/screens/main_page.dart';
+import 'package:recycle/routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        initialRoute: '/',
-        theme: ThemeData(
-          primarySwatch: Colors.grey,
-        ),
-        home: MainPage());
+      initialRoute: '/',
+      theme: ThemeData(
+        primarySwatch: Colors.grey,
+      ),
+      routes: routes,
+    );
   }
 }

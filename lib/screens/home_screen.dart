@@ -45,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   FloatingActionButton addPostBtn() => FloatingActionButton.extended(
         backgroundColor: Color(0xff008000),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, '/write');
+        },
         label: Text(
           '글쓰기',
           style: TextStyle(color: Colors.white),
