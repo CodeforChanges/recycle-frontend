@@ -6,6 +6,8 @@ import 'package:recycle/screens/post_screen.dart';
 import 'package:recycle/screens/profile_screen.dart';
 import 'package:recycle/screens/created_post_screen.dart';
 import 'package:recycle/screens/recycle_screen.dart';
+import 'package:recycle/screens/signin_screen.dart';
+import 'package:recycle/screens/signup_screen.dart';
 
 Map<String, WidgetBuilder> routes(List<CameraDescription> cameras) {
   return {
@@ -14,6 +16,8 @@ Map<String, WidgetBuilder> routes(List<CameraDescription> cameras) {
     '/post': (context) => PostScreen(),
     '/profile': (context) => ProfileScreen(),
     '/setting/createdPost': (context) => CreatedPostScreen(),
-    'recycle': (context) => RecycleScreen(cameras: cameras),
+    '/signin': (context) => SignInScreen(),
+    '/signup': (context) => SignUpScreen(),
+    // 'recycle': (context) => RecycleScreen(cameras: cameras),
   };
 }
