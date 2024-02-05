@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:recycle/models/follow.dart';
+import 'package:recycle/components/user_information.dart';
 import 'package:recycle/models/setting.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -21,8 +21,8 @@ class _SettingScreenState extends State<SettingScreen> {
         child: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            userInfWidget(),
-            menusWidget(),
+            UserInf(),
+            menusWidget(context: context),
           ]),
         ),
       ),
@@ -46,58 +46,7 @@ class _SettingScreenState extends State<SettingScreen> {
         ],
       );
 
-  Widget userInfWidget() => Container(
-        margin: const EdgeInsets.only(bottom: 20.0),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(100.0),
-              child: Image.asset(
-                'assets/images/profile.jpg',
-                width: 80.0,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '이름',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500, fontSize: 20.0),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Row(
-                      children: follows
-                          .map((follow) => Row(
-                                children: [
-                                  Icon(
-                                    follow.icon,
-                                    size: 20.0,
-                                    color: Colors.grey,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4.0),
-                                    child: Text(follow.type),
-                                  ),
-                                  Text(follow.count.toString()),
-                                  const SizedBox(width: 10.0),
-                                ],
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-
-  Widget menusWidget() => Column(
+  Widget menusWidget({required BuildContext context}) => Column(
       children: settings
           .map((menu) => Column(
                 children: [
@@ -105,7 +54,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   ...menu.menus
                       .map((menu) => menuWidget(
                             menu: menu.menu,
-                            onPress: () {},
+                            context: context,
+                            route: menu.route,
                           ))
                       .toList()
                 ],
@@ -132,11 +82,16 @@ class _SettingScreenState extends State<SettingScreen> {
         ],
       );
 
-  Widget menuWidget({required String menu, required Function onPress}) {
+  Widget menuWidget(
+      {required String menu,
+      required BuildContext context,
+      required String route}) {
     return SizedBox(
         width: double.infinity,
         child: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, route);
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
