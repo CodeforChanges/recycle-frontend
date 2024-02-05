@@ -12,28 +12,37 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: renderAppBar(),
-        body: Container(
-          color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              textField(),
-              Expanded(
-                child: ListView.builder(
-                    itemCount: 10,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                          margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey)),
-                          child: Post());
-                    }),
+      appBar: renderAppBar(),
+      body: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            textField(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 10,
+                itemBuilder: (BuildContext context, int index) {
+                  return InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/post');
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: Post(),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        floatingActionButton: addPostBtn());
+      ),
+      floatingActionButton: addPostBtn(),
+    );
   }
 
   AppBar renderAppBar() => AppBar(

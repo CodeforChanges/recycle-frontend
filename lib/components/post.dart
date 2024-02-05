@@ -70,17 +70,6 @@ class _PostState extends State<Post> {
             ),
             Row(
               children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.green),
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)))),
-                  child: const Text(
-                    'follow',
-                    style: TextStyle(color: Colors.green),
-                  ),
-                ),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.more_horiz),
@@ -157,7 +146,7 @@ class _PostState extends State<Post> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 20),
               child: Text(
                 '2024.02.02',
                 style:
