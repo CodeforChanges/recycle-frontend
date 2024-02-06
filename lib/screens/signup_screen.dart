@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
+import 'package:recycle/controller/auth_service.dart';
+import 'package:recycle/models/user.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -47,14 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: true,
               ),
               sizedBox(height: 20.0),
-              signUpBtn(
-                controller: [
-                  nameController,
-                  nicknameController,
-                  emailController,
-                  passwordController
-                ],
-              ),
+              signUpBtn(context),
               sizedBox(height: 20.0),
               moveSignInBtn(),
             ],
@@ -120,11 +116,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ],
       );
 
-  Widget signUpBtn({controller}) => SizedBox(
+  Widget signUpBtn(context) => SizedBox(
         width: double.infinity,
         height: 50.0,
         child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
+            await AuthService.to.signUp(
+                context,
+                User(
+                  user_name: nameController.text,
+                  user_nickname: nicknameController.text,
+                  user_email: emailController.text,
+                  user_password: passwordController.text,
+                ));
             // contoller
           },
           style: ElevatedButton.styleFrom(

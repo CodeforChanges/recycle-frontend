@@ -55,7 +55,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       .map((menu) => menuWidget(
                             menu: menu.menu,
                             context: context,
-                            route: menu.route,
+                            onPress: menu.onPress,
                           ))
                       .toList()
                 ],
@@ -85,13 +85,11 @@ class _SettingScreenState extends State<SettingScreen> {
   Widget menuWidget(
       {required String menu,
       required BuildContext context,
-      required String route}) {
+      required void Function() onPress}) {
     return SizedBox(
         width: double.infinity,
         child: TextButton(
-          onPressed: () {
-            Navigator.pushNamed(context, route);
-          },
+          onPressed: onPress,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

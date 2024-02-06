@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:recycle/controller/auth_service.dart';
 import 'package:recycle/screens/signup_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -12,6 +14,23 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final storage = FlutterSecureStorage();
+
+  _asyncMethod() async {
+    if (await storage.read(key: "access_token") != null) {
+      if (!mounted) return;
+      Get.offAllNamed('/');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncMethod();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +110,10 @@ class _SignInScreenState extends State<SignInScreen> {
       height: 50.0,
       child: ElevatedButton(
         onPressed: () async {
-          // await signIn();
-          // Navigator.of(context).pushNamed('/');
+          await AuthService.to.signIn(
+            emailController.text,
+            passwordController.text,
+          );
         },
         style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xff008000),
