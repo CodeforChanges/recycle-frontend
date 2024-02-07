@@ -18,6 +18,6 @@ Map<String, WidgetBuilder> routes(List<CameraDescription> cameras) {
     '/setting/createdPost': (context) => CreatedPostScreen(),
     '/signin': (context) => SignInScreen(),
     '/signup': (context) => SignUpScreen(),
-    // 'recycle': (context) => RecycleScreen(cameras: cameras),
+    'recycle': (context) => RecycleScreen(cameras: cameras),
   };
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:recycle/components/follow_button.dart';
 import 'package:recycle/models/follow.dart';
 
 class UserInf extends StatelessWidget {

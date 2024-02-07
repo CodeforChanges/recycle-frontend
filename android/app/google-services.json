@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "694180273686",
+    "project_id": "codeforchanges",
+    "storage_bucket": "codeforchanges.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:694180273686:android:d2f86f85ef61971fdf9f37",
+        "android_client_info": {
+          "package_name": "com.example.recycle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzXhQ4I7NRr3jv1SXLvbB8DP2BP00xcnU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
