@@ -1,8 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:recycle/features/recycle/camera_button.dart';
-import 'package:recycle/features/recycle/camera_view.dart';
-import 'package:recycle/features/recycle/recycle_title.dart';
+import 'package:recycle/features/recycle/components/camera_button.dart';
+import 'package:recycle/features/recycle/components/camera_view.dart';
+import 'package:recycle/features/recycle/components/recycle_title.dart';
 
 class RecycleScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -53,29 +53,27 @@ class _RecycleScreenState extends State<RecycleScreen> {
     if (!controller.value.isInitialized) {
       return Container();
     }
-    return MaterialApp(
-      home: Scaffold(
-        body: SafeArea(
-          child: Container(
-            height: size.height,
-            width: double.infinity,
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    CameraView(
-                      cameras: widget.cameras,
-                      controller: controller,
-                    ),
-                    RecycleScreenTitle(),
-                  ],
-                ),
-                Expanded(
-                    child: CameraButton(
-                  controller: controller,
-                )),
-              ],
-            ),
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          height: size.height,
+          width: double.infinity,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  CameraView(
+                    cameras: widget.cameras,
+                    controller: controller,
+                  ),
+                  RecycleScreenTitle(),
+                ],
+              ),
+              Expanded(
+                  child: CameraButton(
+                controller: controller,
+              )),
+            ],
           ),
         ),
       ),
