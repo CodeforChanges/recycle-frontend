@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:recycle/features/recycle/components/ask_permission_container.dart';
 import 'package:recycle/features/recycle/components/camera_button.dart';
 import 'package:recycle/features/recycle/components/camera_view.dart';
 import 'package:recycle/features/recycle/components/recycle_title.dart';
@@ -51,7 +52,7 @@ class _RecycleScreenState extends State<RecycleScreen> {
     final size = MediaQuery.of(context).size;
 
     if (!controller.value.isInitialized) {
-      return Container();
+      return AskPermissionContainer();
     }
     return Scaffold(
       body: SafeArea(
