@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                       ),
-                      child: Post(),
+                      child: Post(postIndex: index),
                     ),
                   );
                 },

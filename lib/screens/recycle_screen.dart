@@ -1,5 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:recycle/features/recycle/components/ask_permission_container.dart';
+import 'package:recycle/features/recycle/components/camera_button.dart';
+import 'package:recycle/features/recycle/components/camera_view.dart';
+import 'package:recycle/features/recycle/components/recycle_title.dart';
 
 class RecycleScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -26,9 +30,11 @@ class _RecycleScreenState extends State<RecycleScreen> {
         switch (e.code) {
           case 'CameraAccessDenied':
             // Handle access errors here.
+            // 카메라 사용해야만 사용할 수 있다는 다이얼로그 띄우고 메인화면으로 navigate 하기
             break;
           default:
             // Handle other errors here.
+            // 에러 다이얼로그 띄우고 메인화면으로 navigate 하기
             break;
         }
       }
@@ -43,69 +49,35 @@ class _RecycleScreenState extends State<RecycleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     if (!controller.value.isInitialized) {
-      return Container();
+      return AskPermissionContainer();
     }
-    return MaterialApp(
-      home: CameraPreview(controller),
-    );
-  }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   // if (!controller.value.isInitialized) {
-  //   //   return Container();
-  //   // }
-  //   return Scaffold(
-  //       appBar: renderAppBar(),
-  //       body: Container(
-  //         color: Colors.white,
-  //         width: double.infinity,
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             textWidget(),
-  //             // CameraPreview(controller),
-  //           ],
-  //         ),
-  //       ));
-  // }
-
-  AppBar renderAppBar() => AppBar(
-        backgroundColor: Colors.white,
-        bottomOpacity: 0,
-        elevation: 0,
-        title: const Text(
-          'Recycle',
-        ),
-      );
-
-  Widget textWidget() => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: const Text(
-          '사진을 찍어 분리수거 방법과 재활용 팁을 확인해 보세요!',
-          style: TextStyle(
-            fontSize: 18.0,
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          height: size.height,
+          width: double.infinity,
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  CameraView(
+                    cameras: widget.cameras,
+                    controller: controller,
+                  ),
+                  RecycleScreenTitle(),
+                ],
+              ),
+              Expanded(
+                  child: CameraButton(
+                controller: controller,
+              )),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
 }
-
-
-  // Future<void> takePicture() async {
-  //   final CameraController cameraController = controller;
-
-  // 카메라 초기화 여부 확인
-  //   if (cameraController == null || !cameraController.value.isInitialized) {
-  //     print('Error: select a camera first.');
-  //     return;
-  //   }
-
-  //   try {
-      // await cameraController.takePicture('/assets/images/');
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return;
-  //   }
-  // }
-

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:recycle/components/post.dart';
 
 class PostScreen extends StatefulWidget {
@@ -9,6 +10,7 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  int index = Get.arguments;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +30,7 @@ class _PostScreenState extends State<PostScreen> {
                             bottom: BorderSide(color: Colors.grey, width: 0.5),
                           ),
                         ),
-                        child: Post(),
+                        child: Post(postIndex: index),
                       ),
                       commentWidget(),
                       commentWidget(),
@@ -37,7 +39,7 @@ class _PostScreenState extends State<PostScreen> {
                   ),
                 ),
               ),
-              bottomCommentWidgets()
+              bottomCommentWidgets(),
             ],
           )),
     );
