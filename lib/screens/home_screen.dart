@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:recycle/components/post.dart';
+import 'package:recycle/controller/post_controller.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,22 +17,24 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             textField(),
             Expanded(
-              child: ListView.builder(
-                itemCount: 10,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/post');
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+              child: Obx(
+                () => ListView.builder(
+                  itemCount: PostController.to.posts.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: () {
+                        Get.toNamed('/post', arguments: index);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: Post(postIndex: index),
                       ),
-                      child: Post(),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -55,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FloatingActionButton addPostBtn() => FloatingActionButton.extended(
         backgroundColor: Color(0xff008000),
         onPressed: () {
-          Navigator.pushNamed(context, '/write');
+          Get.toNamed('/write');
         },
         label: Text(
           '글쓰기',
