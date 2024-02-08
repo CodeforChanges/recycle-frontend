@@ -9,7 +9,17 @@ class AuthService extends GetxController {
 
   User? user;
   Dio dio = Dio();
-  RxString token = ''.obs;
+  RxString _token = ''.obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    String? accessToken = await storage.read(key: "access_token");
+    if (accessToken != null) {
+      _token.value = accessToken;
+    }
+  }
+
   final storage = FlutterSecureStorage();
 
   Future<void> signIn(String email, String password) async {
@@ -28,8 +38,9 @@ class AuthService extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        token.value = response.data['access_token'];
-        await storage.write(key: "access_token", value: token.value);
+        await storage.write(
+            key: "access_token", value: response.data['access_token']);
+
         print("SignIn Success");
         Get.toNamed('/');
       } else {
@@ -64,5 +75,49 @@ class AuthService extends GetxController {
   Future<void> signOut() async {
     await storage.delete(key: "access_token");
     Get.toNamed('/signin');
+  }
+
+  // Future<void> getUser() async {
+  //   try {
+  //     Response response = await dio.get(
+  //       ('${dotenv.get('SERVER')}/user'),
+  //       options: Options(
+  //         contentType: Headers.jsonContentType,
+  //         headers: {'Authorization': 'Bearer ${_token.value}'},
+  //       ),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       user = User.fromMap(response.data);
+  //       print("Get User Success");
+  //     } else {
+  //       print("Get User Failure");
+  //     }
+  //   } catch (e) {
+  //     print("Error during getting user: $e");
+  //   }
+  // }
+
+  Future<void> deleteUser() async {
+    print(_token.value);
+    try {
+      Response response = await dio.delete(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        await storage.delete(key: "access_token");
+        print("User Deletion Success");
+        Get.toNamed('/signin');
+      } else {
+        print("User Deletion Failure");
+      }
+    } catch (e) {
+      print("Error during user deletion: $e");
+    }
   }
 }
