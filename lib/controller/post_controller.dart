@@ -96,4 +96,6 @@ class PostController extends GetxController {
       print('Error while deleting post is $e');
     }
   }
+
+  // 추천 포스트 받아오는 로직 작성 예정.
 }
