@@ -41,7 +41,6 @@ class PostController extends GetxController {
         data: post,
       );
 
-      print(response.data);
       if (response.statusCode == 201) {
         posts.insert(0, Post.fromJson(response.data));
         Get.back();
@@ -57,7 +56,7 @@ class PostController extends GetxController {
   Future<void> getPosts() async {
     try {
       Response response = await dio.get(
-        ('${dotenv.get('SERVER')}/post'), //! 쿼리 바꿔야 함
+        ('${dotenv.get('SERVER')}/post'),
         options: Options(
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
@@ -87,13 +86,102 @@ class PostController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        posts.removeWhere((post) => post.post_id == response.data);
+        posts.remove(posts[postIndex]);
         print('Delete Post Success');
       } else {
         print('Delete Post Failure');
       }
     } catch (e) {
       print('Error while deleting post is $e');
+    }
+  }
+
+  Future<void> likePost(int postIndex) async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/like'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: {'post_id': posts[postIndex].post_id.value},
+      );
+
+      if (response.statusCode == 201) {
+        posts[postIndex].isLiked!.value = true;
+        posts[postIndex].likesCount!.value++;
+        print('Like Post Success');
+      } else {
+        print('Like Post Failure');
+      }
+    } catch (e) {
+      print('Error while liking post is $e');
+    }
+  }
+
+  Future<void> unlikePost(int postIndex) async {
+    try {
+      Response response = await dio.delete(
+        ('${dotenv.get('SERVER')}/like/${posts[postIndex].post_id}'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        posts[postIndex].isLiked!.value = false;
+        posts[postIndex].likesCount!.value--;
+        print('Unlike Post Success');
+      } else {
+        print('Unlike Post Failure');
+      }
+    } catch (e) {
+      print('Error while unliking post is $e');
+    }
+  }
+
+  Future<void> addComment(int postId, String comment) async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/comment'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: {'comment_content': comment, 'post_id': 31},
+      );
+
+      if (response.statusCode == 201) {
+        // print(Comment.fromJson(response.data));
+        // posts[postId].post_comments!.add(response.data);
+        print('Post Comment Success');
+      } else {
+        print('Post Comment Failure');
+      }
+    } catch (e) {
+      print('Error while posting comment is $e');
+    }
+  }
+
+  Future<void> deleteComment(int postId, int commentIndex) async {
+    try {
+      Response response = await dio.delete(
+        ('${dotenv.get('SERVER')}/comment/${posts[postId].post_comments![commentIndex]['comment_id']}'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        posts[postId].post_comments!.removeAt(commentIndex);
+        print('Delete Comment Success');
+      } else {
+        print('Delete Comment Failure');
+      }
+    } catch (e) {
+      print('Error while deleting comment is $e');
     }
   }
 }

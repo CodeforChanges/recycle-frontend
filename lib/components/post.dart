@@ -17,7 +17,7 @@ class Post extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             header(), //! 유저 이미지 때문에 터지는 듯
-            postImages(),
+            // postImages(),
             socialMetrics(),
             contents(),
           ],
@@ -119,13 +119,17 @@ class Post extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  PostController.to.posts[postIndex].isLiked!.value == false
+                      ? await PostController.to.likePost(postIndex)
+                      : await PostController.to.unlikePost(postIndex);
+                },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
                   child: Obx(() => Icon(
                       PostController.to.posts[postIndex].isLiked!.value
-                          ? Icons.favorite_border
-                          : Icons.favorite,
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       color: Color(0xff008000))),
                 )),
             Padding(
