@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
+import 'package:recycle/models/comment.dart';
 import 'package:recycle/models/post.dart';
 
 class PostController extends GetxController {
@@ -149,12 +150,14 @@ class PostController extends GetxController {
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
-        data: {'comment_content': comment, 'post_id': 31},
+        data: {'comment_content': comment, 'post_id': postId},
       );
 
       if (response.statusCode == 201) {
-        // print(Comment.fromJson(response.data));
-        // posts[postId].post_comments!.add(response.data);
+        print(response.data);
+        print(postId);
+        print(posts[postId].post_comments);
+        // posts[postId].post_comments!.add(Comment.fromJson(response.data));
         print('Post Comment Success');
       } else {
         print('Post Comment Failure');
@@ -164,24 +167,24 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> deleteComment(int postId, int commentIndex) async {
-    try {
-      Response response = await dio.delete(
-        ('${dotenv.get('SERVER')}/comment/${posts[postId].post_comments![commentIndex]['comment_id']}'),
-        options: Options(
-          contentType: Headers.jsonContentType,
-          headers: {'Authorization': 'Bearer ${_token.value}'},
-        ),
-      );
+  // Future<void> deleteComment(int postId, int commentIndex) async {
+  //   try {
+  //     Response response = await dio.delete(
+  //       ('${dotenv.get('SERVER')}/comment/${posts[postId].post_comments![commentIndex]['comment_id']}'),
+  //       options: Options(
+  //         contentType: Headers.jsonContentType,
+  //         headers: {'Authorization': 'Bearer ${_token.value}'},
+  //       ),
+  //     );
 
-      if (response.statusCode == 200) {
-        posts[postId].post_comments!.removeAt(commentIndex);
-        print('Delete Comment Success');
-      } else {
-        print('Delete Comment Failure');
-      }
-    } catch (e) {
-      print('Error while deleting comment is $e');
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       posts[postId].post_comments!.removeAt(commentIndex);
+  //       print('Delete Comment Success');
+  //     } else {
+  //       print('Delete Comment Failure');
+  //     }
+  //   } catch (e) {
+  //     print('Error while deleting comment is $e');
+  //   }
+  // }
 }
