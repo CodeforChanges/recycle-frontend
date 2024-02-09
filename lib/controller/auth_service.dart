@@ -18,6 +18,7 @@ class AuthService extends GetxController {
     if (accessToken != null) {
       _token.value = accessToken;
     }
+    await getUser();
   }
 
   final storage = FlutterSecureStorage();
@@ -77,26 +78,26 @@ class AuthService extends GetxController {
     Get.toNamed('/signin');
   }
 
-  // Future<void> getUser() async {
-  //   try {
-  //     Response response = await dio.get(
-  //       ('${dotenv.get('SERVER')}/user'),
-  //       options: Options(
-  //         contentType: Headers.jsonContentType,
-  //         headers: {'Authorization': 'Bearer ${_token.value}'},
-  //       ),
-  //     );
+  Future<void> getUser() async {
+    try {
+      Response response = await dio.get(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
 
-  //     if (response.statusCode == 200) {
-  //       user = User.fromMap(response.data);
-  //       print("Get User Success");
-  //     } else {
-  //       print("Get User Failure");
-  //     }
-  //   } catch (e) {
-  //     print("Error during getting user: $e");
-  //   }
-  // }
+      if (response.statusCode == 200) {
+        user = User.fromJson(response.data);
+        print("Get User Success");
+      } else {
+        print("Get User Failure");
+      }
+    } catch (e) {
+      print("Error during getting user: $e");
+    }
+  }
 
   Future<void> deleteUser() async {
     print(_token.value);
