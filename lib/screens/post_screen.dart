@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recycle/components/post.dart';
+import 'package:recycle/controller/post_controller.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -10,7 +11,9 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  int index = Get.arguments;
+  int postIndex = Get.arguments;
+  TextEditingController commentController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +33,7 @@ class _PostScreenState extends State<PostScreen> {
                             bottom: BorderSide(color: Colors.grey, width: 0.5),
                           ),
                         ),
-                        child: Post(postIndex: index),
+                        child: Post(postIndex: postIndex),
                       ),
                       commentWidget(),
                       commentWidget(),
@@ -67,6 +70,7 @@ class _PostScreenState extends State<PostScreen> {
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: TextField(
+                  controller: commentController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -77,7 +81,12 @@ class _PostScreenState extends State<PostScreen> {
               ),
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  PostController.to.addComment(
+                      PostController.to.posts[postIndex].post_id.value,
+                      commentController.text);
+                  commentController.clear();
+                },
                 icon: Icon(
                   Icons.send,
                   size: 28,
@@ -100,9 +109,9 @@ class _PostScreenState extends State<PostScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage('assets/images/profile.jpg')),
+                  // CircleAvatar(
+                  //     radius: 20,
+                  //     backgroundImage: AssetImage('assets/images/profile.jpg')),
                   Container(
                     padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                     child: Column(
@@ -116,7 +125,7 @@ class _PostScreenState extends State<PostScreen> {
                           ),
                         ),
                         Text(
-                          '안녕하세요 adjof isa adjf iodajf ioaa   ',
+                          '안녕하세요',
                         ),
                       ],
                     ),

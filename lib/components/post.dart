@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
+import 'package:recycle/controller/auth_service.dart';
 import 'package:recycle/controller/post_controller.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +18,7 @@ class Post extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             header(), //! 유저 이미지 때문에 터지는 듯
-            postImages(),
+            // postImages(),
             socialMetrics(),
             contents(),
           ],
@@ -47,21 +48,20 @@ class Post extends StatelessWidget {
                 )
               ],
             ),
-            Row(
-              children: [
-                PopupMenuButton<String>(
-                  constraints:
-                      const BoxConstraints.expand(width: 70, height: 110),
-                  itemBuilder: (ctx) => [
-                    _buildPopupMenuItem('수정'),
-                    _buildPopupMenuItem('삭제'),
-                  ],
-                  onSelected: (String index) => index == '수정'
-                      ? print('수정')
-                      : PostController.to.deletePost(postIndex),
-                )
-              ],
-            ),
+            AuthService.to.user!.user_id ==
+                    PostController.to.posts[postIndex].post_owner['user_id']
+                ? PopupMenuButton<String>(
+                    constraints:
+                        const BoxConstraints.expand(width: 70, height: 110),
+                    itemBuilder: (ctx) => [
+                      _buildPopupMenuItem('수정'),
+                      _buildPopupMenuItem('삭제'),
+                    ],
+                    onSelected: (String index) => index == '수정'
+                        ? print('수정')
+                        : PostController.to.deletePost(postIndex),
+                  )
+                : Container(),
           ],
         ),
       );
@@ -119,13 +119,17 @@ class Post extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  PostController.to.posts[postIndex].isLiked!.value == false
+                      ? await PostController.to.likePost(postIndex)
+                      : await PostController.to.unlikePost(postIndex);
+                },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
                   child: Obx(() => Icon(
                       PostController.to.posts[postIndex].isLiked!.value
-                          ? Icons.favorite_border
-                          : Icons.favorite,
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       color: Color(0xff008000))),
                 )),
             Padding(
