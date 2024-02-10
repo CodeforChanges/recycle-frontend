@@ -12,6 +12,8 @@ class PostController extends GetxController {
   RxString _token = ''.obs;
   RxInt activeIndex = 0.obs;
   RxInt popupMenuIndex = 0.obs;
+  RxList<Post> recommendPost = <Post>[].obs;
+  RxInt selectedRecommendIndex = 0.obs;
 
   @override
   void onInit() async {
