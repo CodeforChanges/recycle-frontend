@@ -97,6 +97,7 @@ class PostController extends GetxController {
     }
   }
 
+
   Future<void> likePost(int postIndex) async {
     try {
       Response response = await dio.post(
@@ -187,4 +188,7 @@ class PostController extends GetxController {
   //     print('Error while deleting comment is $e');
   //   }
   // }
+
+  // 추천 포스트 받아오는 로직 작성 예정.
+
 }

@@ -59,6 +59,8 @@ final List<Map<String, dynamic>> userData = [
   },
 ];
 
+enum IndicatorType { post, image }
+
 class RecycleTipDialog extends StatefulWidget {
   const RecycleTipDialog({super.key});
 
@@ -67,40 +69,122 @@ class RecycleTipDialog extends StatefulWidget {
 }
 
 class _RecycleTipDialogState extends State<RecycleTipDialog> {
-  double maxHeight = 500;
+  int imageIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
-        width: double.infinity,
-        height: maxHeight,
-        child: Column(
-          children: [
-            returnPostSlider(),
-          ],
-        ));
+      width: 250,
+      child: Column(children: [
+        returnPostSlider(),
+        returnSliderDescription(),
+        SizedBox(
+          height: 20,
+        ),
+        returnCloseButton(),
+      ]),
+    );
   }
 
-  Container returnPost(int userIndex) {
-    return Container(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: Column(
+  ElevatedButton returnCloseButton() {
+    return ElevatedButton(
+      child: Text(
+        '닫기',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  GestureDetector returnPost(int userIndex) {
+    return GestureDetector(
+      onTap: () {
+        // post 컨트롤러 recommendIndex 값 업데이트;
+        // Get.toNamed('/post', );
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+            border: Border.all(
+          width: 0.5,
+          color: Colors.grey,
+        )),
+        child: Stack(
           children: [
             returnImageSlider(userIndex),
             returnPostFooter(userData[userIndex]),
+            returnDotIndicator(
+                imageIndex, userData[userIndex]['post_images'].length),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
-  Container returnPostFooter(Map<String, dynamic> user) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+  Row returnSliderDescription() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          '좌우로 슬라이드해서 게시물을 넘길 수 있습니다.',
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey[700],
+          ),
+        ),
+        SizedBox(width: 10),
+      ],
+    );
+  }
+
+  Positioned returnDotIndicator(int imageIndex, int length) {
+    return Positioned(
+      bottom: 90,
+      left: 0,
+      right: 0,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          returnUserInfo(user['user_name'] ?? ''),
-          returnPostInfo(user['like_count'], user['comment_count'])
-        ],
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(length, (index) {
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            height: 5,
+            width: 5,
+            margin: EdgeInsets.symmetric(horizontal: 3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: imageIndex == index ? Colors.white : Colors.grey,
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Align returnPostFooter(Map<String, dynamic> user) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        width: double.infinity,
+        height: 70,
+        padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Center(
+              child: returnUserInfo(user['user_name'] ?? ''),
+            ),
+            Center(
+              child: returnPostInfo(user['like_count'], user['comment_count']),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -108,6 +192,7 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
   Container returnUserInfo(String userName) {
     return Container(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 20,
@@ -116,7 +201,7 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
           SizedBox(width: 10),
           Text(userName,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 14,
               ))
         ],
       ),
@@ -127,11 +212,26 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
     return Container(
       child: Row(
         children: [
-          Icon(Icons.favorite),
-          Text(likeCount.toString()),
+          Icon(Icons.favorite, size: 16, color: Colors.grey[700]),
+          SizedBox(width: 3),
+          Text(
+            likeCount.toString(),
+            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+          ),
           SizedBox(width: 10),
-          Icon(Icons.comment),
-          Text(commentCount.toString()),
+          Icon(
+            Icons.comment,
+            size: 16,
+            color: Colors.grey[700],
+          ),
+          SizedBox(width: 3),
+          Text(
+            commentCount.toString(),
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+            ),
+          ),
         ],
       ),
     );
@@ -142,15 +242,22 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
       items: List.generate(userData[userIndex]['post_images']?.length ?? 0,
           (index) {
         return Builder(builder: (BuildContext context) {
-          return Container(
-            margin: EdgeInsets.symmetric(horizontal: 5.0),
-            decoration: BoxDecoration(color: Colors.amber),
+          return FittedBox(
+            fit: BoxFit.cover,
             child: Image.asset(userData[userIndex]['post_images'][index]),
           );
         });
       }).toList(),
       options: CarouselOptions(
-        height: 150,
+        onPageChanged: (index, reason) => {
+          setState(() {
+            imageIndex = index;
+          })
+        },
+        height: 180,
+        aspectRatio: 4 / 3,
+        viewportFraction: 1.0,
+        enlargeCenterPage: true,
         scrollDirection: Axis.horizontal,
       ),
     );
@@ -158,7 +265,16 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
 
   CarouselSlider returnPostSlider() {
     return CarouselSlider(
-        options: CarouselOptions(height: 400, scrollDirection: Axis.horizontal),
+        options: CarouselOptions(
+          onPageChanged: (index, reason) => {
+            setState(() {
+              imageIndex = 0;
+            })
+          },
+          height: 252,
+          viewportFraction: 1.0,
+          scrollDirection: Axis.horizontal,
+        ),
         items: List.generate(userData.length, (index) => returnPost(index)));
   }
 }
