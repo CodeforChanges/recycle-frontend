@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:recycle/models/comment.dart';
 
 class Post {
   RxInt post_id = 0.obs;
@@ -11,8 +12,6 @@ class Post {
   RxInt? likesCount = 0.obs;
   RxInt? sharesCount = 0.obs;
   RxBool? isLiked = false.obs;
-  RxBool? isShared = false.obs;
-  RxBool? isFollowed = false.obs;
 
   Post({
     required this.post_id,
@@ -25,8 +24,6 @@ class Post {
     this.likesCount,
     this.sharesCount,
     this.isLiked,
-    this.isShared,
-    this.isFollowed,
   });
 
   Post.fromJson(Map<String, dynamic> json) {
@@ -40,7 +37,5 @@ class Post {
     likesCount = RxInt(json['likesCount'] ?? 0);
     sharesCount = RxInt(json['sharesCount'] ?? 0);
     isLiked = RxBool(json['isLiked'] ?? false);
-    isShared = RxBool(json['isShared'] ?? false);
-    isFollowed = RxBool(json['isFollowed'] ?? false);
   }
 }

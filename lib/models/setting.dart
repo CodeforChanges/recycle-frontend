@@ -42,7 +42,10 @@ List<Setting> settings = [
       ),
       Menu(
         menu: "회원탈퇴",
-        onPress: () => '회원탈퇴',
+        onPress: () {
+          AuthService.to.deleteUser();
+          return '회원탈퇴';
+        },
       ),
     ],
   ),
