@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:recycle/models/comment.dart';
 import 'package:recycle/models/post.dart';
 
 class PostController extends GetxController {
@@ -97,7 +96,6 @@ class PostController extends GetxController {
     }
   }
 
-
   Future<void> likePost(int postIndex) async {
     try {
       Response response = await dio.post(
@@ -190,5 +188,4 @@ class PostController extends GetxController {
   // }
 
   // 추천 포스트 받아오는 로직 작성 예정.
-
 }
