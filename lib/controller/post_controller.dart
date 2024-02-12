@@ -79,12 +79,26 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> getPostsBySearch() async {
+  Future<void> getPostsBySearch(String keyword) async {
     try {
       Response response = await dio.post(
-        ('${dotenv.get('SERVER')}/post'),
+        ('${dotenv.get('SERVER')}/search'),
+        data: {"keyword": keyword},
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
       );
-    } catch (e) {}
+      if (response.statusCode == 201) {
+        posts.value =
+            response.data.map<Post>((post) => Post.fromJson(post)).toList();
+        return;
+      }
+      print("get post not successful");
+    } catch (e) {
+      print('get post has an error');
+      print(e);
+    }
   }
 
   Future<void> deletePost(int postIndex) async {

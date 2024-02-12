@@ -70,6 +70,7 @@ class HomeScreen extends StatelessWidget {
   Widget textField() => Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
         child: TextField(
+          onChanged: (value) => {PostController.to.getPostsBySearch(value)},
           decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
               hintText: '원하는 재활용 꿀팁을 검색해보세요',
