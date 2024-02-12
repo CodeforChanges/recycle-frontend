@@ -81,6 +81,10 @@ class PostController extends GetxController {
 
   Future<void> getPostsBySearch(String keyword) async {
     try {
+      if (keyword == '') {
+        await getPosts();
+        return;
+      }
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/search'),
         data: {"keyword": keyword},
