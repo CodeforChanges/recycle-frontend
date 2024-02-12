@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
@@ -14,6 +15,7 @@ class PostController extends GetxController {
   RxInt popupMenuIndex = 0.obs;
   RxList<Post> recommendPost = <Post>[].obs;
   RxInt selectedRecommendIndex = 0.obs;
+  RxString search = ''.obs;
 
   @override
   void onInit() async {
@@ -33,7 +35,6 @@ class PostController extends GetxController {
         'post_content': post_content,
         'post_images': post_images,
       };
-      print(post);
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/post'),
         options: Options(
@@ -68,6 +69,7 @@ class PostController extends GetxController {
       if (response.statusCode == 200) {
         posts.value =
             response.data.map<Post>((post) => Post.fromJson(post)).toList();
+
         print('Get Posts Success');
       } else {
         print('Get Posts Failure');
@@ -75,6 +77,14 @@ class PostController extends GetxController {
     } catch (e) {
       print('Error while getting posts is $e');
     }
+  }
+
+  Future<void> getPostsBySearch() async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/post'),
+      );
+    } catch (e) {}
   }
 
   Future<void> deletePost(int postIndex) async {
@@ -166,6 +176,10 @@ class PostController extends GetxController {
     } catch (e) {
       print('Error while posting comment is $e');
     }
+  }
+
+  Future<String> uploadImage(Image image) async {
+    return 'url';
   }
 
   // Future<void> deleteComment(int postId, int commentIndex) async {

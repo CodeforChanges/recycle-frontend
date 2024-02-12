@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:recycle/models/comment.dart';
 
 class Post {
   RxInt post_id = 0.obs;
@@ -27,15 +26,15 @@ class Post {
   });
 
   Post.fromJson(Map<String, dynamic> json) {
-    post_id = RxInt(json['post_id'] ?? 0);
-    post_content = RxString(json['post_content'] ?? '');
-    post_owner_id = RxInt(json['post_owner_id'] ?? 0);
-    reg_date = json['reg_date'] ?? '';
-    post_images = RxList(json['post_images'] ?? []);
-    post_owner = RxMap(json['post_owner'] ?? {});
-    post_comments = RxList(json['post_comments'] ?? []);
-    likesCount = RxInt(json['likesCount'] ?? 0);
-    sharesCount = RxInt(json['sharesCount'] ?? 0);
-    isLiked = RxBool(json['isLiked'] ?? false);
+    post_id = RxInt(json['post']['post_id'] ?? 0);
+    post_content = RxString(json['post']['post_content'] ?? '');
+    post_owner_id = RxInt(json['post']['post_owner_id'] ?? 0);
+    reg_date = json['post']['reg_date'] ?? '';
+    post_images = RxList(json['post']['post_images'] ?? []);
+    post_owner = RxMap(json['post']['post_owner'] ?? {});
+    post_comments = RxList(json['post']['post_comments'] ?? []);
+    likesCount = RxInt(json['post']['likesCount'] ?? 0);
+    sharesCount = RxInt(json['post']['sharesCount'] ?? 0);
+    isLiked = RxBool(json['post']['isLiked'] ?? false);
   }
 }

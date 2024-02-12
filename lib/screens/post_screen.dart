@@ -109,9 +109,10 @@ class _PostScreenState extends State<PostScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // CircleAvatar(
-                  //     radius: 20,
-                  //     backgroundImage: AssetImage('assets/images/profile.jpg')),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.brown.shade800,
+                  ),
                   Container(
                     padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                     child: Column(
