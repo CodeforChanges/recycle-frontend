@@ -127,6 +127,38 @@ class PostController extends GetxController {
     }
   }
 
+  Future<bool> updatePost(
+      int? post_id, String post_content, List<String> post_images) async {
+    if (post_id == null) return false;
+    try {
+      Map<String, dynamic> post = {
+        'post_content': post_content,
+        'post_images': post_images,
+        'post_tags': [],
+      };
+      Response response = await dio.patch(
+        ('${dotenv.get('SERVER')}/post/$post_id'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: post,
+      );
+
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        print('Update Post Success');
+        return true;
+      }
+      print('Update Post Failure');
+      return false;
+    } catch (e) {
+      print('Error while updating post is $e');
+      return false;
+    }
+  }
+
   Future<void> likePost(int postIndex) async {
     try {
       Response response = await dio.post(

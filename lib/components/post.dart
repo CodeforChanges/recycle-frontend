@@ -81,7 +81,20 @@ class Post extends StatelessWidget {
                       _buildPopupMenuItem('삭제'),
                     ],
                     onSelected: (String index) => index == '수정'
-                        ? print('수정')
+                        ? Get.toNamed(
+                            '/write',
+                            arguments: {
+                              "content": PostController
+                                  .to.posts[postIndex].post_content.value,
+                              "images": PostController
+                                  .to.posts[postIndex].post_images
+                                  .map((element) =>
+                                      element['image_link'] as String)
+                                  .toList(),
+                              "postId": PostController
+                                  .to.posts[postIndex].post_id.value
+                            },
+                          )
                         : PostController.to.deletePost(postIndex),
                   )
                 : Container(),
@@ -108,16 +121,27 @@ class Post extends StatelessWidget {
               ),
               itemCount: PostController.to.posts[postIndex].post_images.length,
               itemBuilder: (context, index, realIndex) {
-                final path = PostController
-                    .to.posts[postIndex].post_images[index]['image_link'];
-                return imageSlider(path, index);
+                try {
+                  final path = PostController
+                      .to.posts[postIndex].post_images[index]['image_link'];
+                  return imageSlider(path, index);
+                } catch (e) {
+                  print(e);
+                  return Container(
+                    width: double.infinity,
+                    height: 240,
+                    child: const Center(
+                      child: Text('이미지를 불러오는데 실패했습니다.'),
+                    ),
+                  );
+                }
               },
             ),
             Align(alignment: Alignment.bottomCenter, child: indicator())
           ]));
 
   Widget imageSlider(path, index) {
-    print('path: $path');
+    print(path.runtimeType);
     return Container(
       width: double.infinity,
       height: 240,

@@ -20,6 +20,36 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   final storage = FirebaseStorage.instance;
 
+  String? editingContent;
+
+  List<String>? editingImages;
+
+  int? postId;
+
+  bool? isEditMode;
+
+  final arguments = Get.arguments;
+
+  @override
+  void initState() {
+    super.initState();
+    if (arguments != null) {
+      setState(() {
+        isEditMode = true;
+        postId = arguments['postId'];
+        editingContent = arguments['content'];
+        editingImages = arguments['images'];
+        textController.text = editingContent!;
+        userImagePaths = editingImages!
+            .map((image) async {
+              return image;
+            })
+            .toList()
+            .cast<Future<String>>();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +91,32 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 );
                 return;
               }
+
+              if (isEditMode == true) {
+                final result = await PostController.to.updatePost(
+                  postId,
+                  textController.text,
+                  imagePaths,
+                );
+                if (result == false) {
+                  AlertDialog(
+                    title: const Text('글 수정에 실패했습니다.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: const Text('확인'),
+                      ),
+                    ],
+                  );
+                  return;
+                }
+                PostController.to.getPosts();
+                Get.back();
+                return;
+              }
+
               await PostController.to.postData(
                 textController.text,
                 imagePaths,
@@ -103,7 +159,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                                 height: 100,
                                                 child: const Center(
                                                     child:
-                                                        CircularProgressIndicator()),
+                                                        Text('loading error')),
                                               );
                                             },
                                               width: 100,
@@ -238,11 +294,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   void deleteImage(int index) {
     try {
-      print("deleteImage: $index");
-      print(userImagePaths.length);
       setState(() {
         userImagePaths.removeAt(index);
-        storage.ref().child('images/${userImagePaths[index]}').delete();
       });
     } catch (e) {
       printError(info: e.toString());
