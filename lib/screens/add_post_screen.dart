@@ -242,6 +242,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       print(userImagePaths.length);
       setState(() {
         userImagePaths.removeAt(index);
+        storage.ref().child('images/${userImagePaths[index]}').delete();
       });
     } catch (e) {
       printError(info: e.toString());
