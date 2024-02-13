@@ -80,58 +80,71 @@ class _AddPostScreenState extends State<AddPostScreen> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: userImagePaths == []
-                ? []
-                : userImagePaths.map(
-                    (image) {
-                      return Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          child: FutureBuilder(
-                            future: image,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                return snapshot.data != null
-                                    ? Image.network(snapshot.data as String,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                        return Container(
-                                          width: 100,
-                                          height: 100,
-                                          child: const Center(
-                                              child:
-                                                  CircularProgressIndicator()),
-                                        );
-                                      },
+              children: userImagePaths.isEmpty
+                  ? []
+                  : List.generate(
+                      userImagePaths.length,
+                      (index) => Stack(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                child: FutureBuilder(
+                                  future: userImagePaths[index],
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      return snapshot.data != null
+                                          ? Image.network(
+                                              snapshot.data as String,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                              return Container(
+                                                width: 100,
+                                                height: 100,
+                                                child: const Center(
+                                                    child:
+                                                        CircularProgressIndicator()),
+                                              );
+                                            },
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover)
+                                          : Container(
+                                              width: 100,
+                                              height: 100,
+                                              color: Colors.grey,
+                                            );
+                                    }
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Container(
                                         width: 100,
                                         height: 100,
-                                        fit: BoxFit.cover)
-                                    : Container(
-                                        width: 100,
-                                        height: 100,
-                                        color: Colors.grey,
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
                                       );
-                              }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Container(
-                                  width: 100,
-                                  height: 100,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-                              return Container(
-                                width: 100,
-                                height: 100,
-                                color: Colors.grey,
-                              );
-                            },
-                          ));
-                    },
-                  ).toList(),
-          ),
+                                    }
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors.grey,
+                                    );
+                                  },
+                                ),
+                              ),
+                              Positioned(
+                                right: -5,
+                                top: -10,
+                                child: IconButton(
+                                    onPressed: () {
+                                      deleteImage(index);
+                                    },
+                                    icon:
+                                        Icon(Icons.delete, color: Colors.red)),
+                              ),
+                            ],
+                          ))),
         ),
       );
 
@@ -222,4 +235,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
           ),
         ),
       );
+
+  void deleteImage(int index) {
+    try {
+      print("deleteImage: $index");
+      print(userImagePaths.length);
+      setState(() {
+        userImagePaths.removeAt(index);
+      });
+    } catch (e) {
+      printError(info: e.toString());
+    }
+  }
 }

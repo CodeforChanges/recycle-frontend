@@ -17,7 +17,7 @@ class Post extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            header(), //! 유저 이미지 때문에 터지는 듯
+            header(), //! 유저 이미지 때문에 터지는 듯 => 해결 했습니다!
             postImages(),
             socialMetrics(),
             contents(),
