@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:recycle/controller/post_controller.dart';
 
@@ -46,12 +47,28 @@ class _AddPostScreenState extends State<AddPostScreen> {
           IconButton(
             onPressed: () async {
               final imagePaths = await Future.wait(userImagePaths);
-              userImagePaths.isEmpty
-                  ? print('not selected image') //! 사진 추가하라고 alert 날려주기?
-                  : PostController.to.postData(
-                      textController.text,
-                      imagePaths,
-                    );
+              if (userImagePaths.isEmpty) {
+                AlertDialog(
+                  title: const Text('이미지를 추가해주세요'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      child: const Text('확인'),
+                    ),
+                  ],
+                );
+                return;
+              }
+              await PostController.to.postData(
+                textController.text,
+                imagePaths,
+              );
+              // ! 포스트 추가시 업데이트가 반영이 안됨...
+              // ! 업데이트시 반환되는 데이터를 없애도 될듯 합니다.
+              PostController.to.getPosts();
+              Get.toNamed('/');
             },
             icon: const Icon(Icons.check),
           ),
@@ -67,8 +84,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ? []
                 : userImagePaths.map(
                     (image) {
-                      // 저장소에서 이미지 보여주는 방법 생각해보기.
-                      // final imageRef = storage.ref().child('images/${image}');
                       return Container(
                           margin: const EdgeInsets.only(right: 8),
                           child: FutureBuilder(

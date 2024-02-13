@@ -16,6 +16,7 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(PostController.to.posts[postIndex].post_comments);
     return Scaffold(
       appBar: renderAppBar(),
       body: Container(
@@ -35,9 +36,35 @@ class _PostScreenState extends State<PostScreen> {
                         ),
                         child: Post(postIndex: postIndex),
                       ),
-                      commentWidget(),
-                      commentWidget(),
-                      commentWidget(),
+                      Obx(
+                        () => Column(
+                          children: [
+                            PostController.to.posts[postIndex].post_comments !=
+                                    null
+                                ? Column(
+                                    children: PostController
+                                        .to.posts[postIndex].post_comments!
+                                        .map((comment) => commentWidget(
+                                              comment['comment_owner']
+                                                  ['user_nickname'],
+                                              comment['comment_content'],
+                                              comment['comment_owner']
+                                                  ['user_image'],
+                                            ))
+                                        .toList(),
+                                  )
+                                : Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 12, 16, 12),
+                                        child: Text('댓글이 없습니다.'),
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -96,7 +123,9 @@ class _PostScreenState extends State<PostScreen> {
         ),
       );
 
-  Widget commentWidget() => Container(
+  Widget commentWidget(
+          String user_name, String comment_content, String? user_image) =>
+      Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
@@ -109,10 +138,18 @@ class _PostScreenState extends State<PostScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.brown.shade800,
-                  ),
+                  user_image == null
+                      ? CircleAvatar(
+                          backgroundColor: Colors.brown.shade800,
+                        )
+                      : CircleAvatar(
+                          radius: 20,
+                          backgroundImage: NetworkImage(
+                            user_image,
+                          ),
+                          onBackgroundImageError: (exception, stackTrace) =>
+                              null,
+                        ),
                   Container(
                     padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                     child: Column(
@@ -121,12 +158,12 @@ class _PostScreenState extends State<PostScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
-                            'indevruis',
+                            user_name,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Text(
-                          '안녕하세요',
+                          comment_content,
                         ),
                       ],
                     ),

@@ -3,8 +3,50 @@ import 'package:get/get.dart';
 import 'package:recycle/components/post.dart';
 import 'package:recycle/controller/post_controller.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int page = 0;
+  bool isLoading = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _scrollController.addListener(() async {
+      if (isLoading) {
+        return;
+      }
+
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        setState(() {
+          isLoading = true;
+        });
+        final result = await PostController.to.getNextPagePost(page);
+
+        if (result) {
+          setState(() {
+            isLoading = false;
+            page++;
+          });
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +61,7 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: Obx(
                 () => ListView.builder(
+                  controller: _scrollController,
                   itemCount: PostController.to.posts.length,
                   itemBuilder: (BuildContext context, int index) {
                     return InkWell(
@@ -37,10 +80,25 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            isLoading
+                ? loadingSkeleton()
+                : Container(
+                    height: 0,
+                  ),
           ],
         ),
       ),
       floatingActionButton: addPostBtn(),
+    );
+  }
+
+  Container loadingSkeleton() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      width: double.infinity,
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 

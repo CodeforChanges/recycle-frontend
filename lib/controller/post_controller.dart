@@ -45,8 +45,9 @@ class PostController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        posts.insert(0, Post.fromJson(response.data));
-        Get.back();
+        final newPost = Post.fromJson(response.data);
+        print(newPost);
+        posts.insert(0, newPost);
         print('Post Success');
       } else {
         print('Post Failure');
@@ -198,6 +199,26 @@ class PostController extends GetxController {
 
   Future<String> uploadImage(Image image) async {
     return 'url';
+  }
+
+  Future<bool> getNextPagePost(int page) async {
+    try {
+      Response response = await dio.get(
+        ('${dotenv.get('SERVER')}/post?page=$page'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        posts.addAll(response.data.map<Post>((post) => Post.fromJson(post)));
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error while getting next page post is $e');
+      return false;
+    }
   }
 
   // Future<void> deleteComment(int postId, int commentIndex) async {
