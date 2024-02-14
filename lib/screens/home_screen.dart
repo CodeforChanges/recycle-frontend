@@ -14,6 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int page = 1;
   bool isLoading = false;
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
+  bool inSearch = false;
 
   @override
   void initState() {
@@ -21,6 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _scrollController.addListener(() async {
       if (isLoading) {
+        return;
+      }
+
+      if (inSearch) {
         return;
       }
 
@@ -56,6 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () {
+        _focusNode.unfocus();
+      },
       child: Scaffold(
         appBar: renderAppBar(),
         body: Container(
@@ -135,12 +144,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget textField() => Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
         child: TextField(
+          focusNode: _focusNode,
           onChanged: (value) async {
             if (value.isNotEmpty) {
+              setState(() {
+                inSearch = true;
+              });
               PostController.to.getPostsBySearch(value);
             } else {
               setState(() {
                 page = 1;
+                inSearch = false;
                 PostController.to.posts.clear();
                 PostController.to.getPosts(page: 0);
               });
