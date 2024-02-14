@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
+import 'package:recycle/models/comment.dart';
 import 'package:recycle/models/post.dart';
 
 class PostController extends GetxController {
@@ -24,7 +25,7 @@ class PostController extends GetxController {
     if (accessToken != null) {
       _token.value = accessToken;
     }
-    await getPosts();
+    await getPosts(page: 0);
   }
 
   final storage = FlutterSecureStorage();
@@ -57,26 +58,35 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> getPosts() async {
+  Future<bool?> getPosts({int? owner_id, int page = 0}) async {
     try {
+      String ownerQuery = owner_id != null ? 'owner=$owner_id' : '';
+      String pageQuery = 'page=$page';
       Response response = await dio.get(
-        ('${dotenv.get('SERVER')}/post'),
+        ('${dotenv.get('SERVER')}/post?$ownerQuery$pageQuery'),
         options: Options(
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
       );
 
-      if (response.statusCode == 200) {
-        posts.value =
-            response.data.map<Post>((post) => Post.fromJson(post)).toList();
-
-        print('Get Posts Success');
-      } else {
+      if (response.statusCode != 200) {
         print('Get Posts Failure');
+        return null;
       }
+
+      if (response.data.length == 0) {
+        print('Get Posts Success');
+        return false;
+      }
+
+      posts.addAll(
+          response.data.map<Post>((post) => Post.fromJson(post)).toList());
+      print('Get Posts Success');
+      return true;
     } catch (e) {
       print('Error while getting posts is $e');
+      return null;
     }
   }
 
@@ -204,7 +214,7 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> addComment(int postId, String comment) async {
+  Future<void> addComment(int postIndex, String comment) async {
     try {
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/comment'),
@@ -212,14 +222,18 @@ class PostController extends GetxController {
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
-        data: {'comment_content': comment, 'post_id': postId},
+        data: {
+          'comment_content': comment,
+          'post_id': posts[postIndex].post_id.value,
+        },
       );
 
       if (response.statusCode == 201) {
-        print(response.data);
-        print(postId);
-        print(posts[postId].post_comments);
-        // posts[postId].post_comments!.add(Comment.fromJson(response.data));
+        if (response.data != null) {
+          posts[postIndex]
+              .post_comments
+              ?.insert(0, Comment.fromJson(response.data));
+        }
         print('Post Comment Success');
       } else {
         print('Post Comment Failure');
@@ -233,46 +247,31 @@ class PostController extends GetxController {
     return 'url';
   }
 
-  Future<bool> getNextPagePost(int page) async {
+  Future<bool> deleteComment(int? comment_id, int? postIndex) async {
     try {
-      Response response = await dio.get(
-        ('${dotenv.get('SERVER')}/post?page=$page'),
+      if (comment_id == null || postIndex == null) return false;
+      Response response = await dio.delete(
+        ('${dotenv.get('SERVER')}/comment/${comment_id}'),
         options: Options(
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
       );
+
       if (response.statusCode == 200) {
-        posts.addAll(response.data.map<Post>((post) => Post.fromJson(post)));
+        posts[postIndex]
+            .post_comments!
+            .removeWhere((element) => element.comment_id.value == comment_id);
+        print('Delete Comment Success');
         return true;
       }
+      print('Delete Comment Failure');
       return false;
     } catch (e) {
-      print('Error while getting next page post is $e');
+      print('Error while deleting comment is $e');
       return false;
     }
   }
-
-  // Future<void> deleteComment(int postId, int commentIndex) async {
-  //   try {
-  //     Response response = await dio.delete(
-  //       ('${dotenv.get('SERVER')}/comment/${posts[postId].post_comments![commentIndex]['comment_id']}'),
-  //       options: Options(
-  //         contentType: Headers.jsonContentType,
-  //         headers: {'Authorization': 'Bearer ${_token.value}'},
-  //       ),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       posts[postId].post_comments!.removeAt(commentIndex);
-  //       print('Delete Comment Success');
-  //     } else {
-  //       print('Delete Comment Failure');
-  //     }
-  //   } catch (e) {
-  //     print('Error while deleting comment is $e');
-  //   }
-  // }
 
   // 추천 포스트 받아오는 로직 작성 예정.
 }

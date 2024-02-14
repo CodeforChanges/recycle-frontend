@@ -34,7 +34,7 @@ class Post extends StatelessWidget {
   }
 
   CircleAvatar userImage(String? image) {
-    return image == null
+    return (image == null || image.isEmpty)
         ? CircleAvatar(
             radius: 22.5,
             backgroundColor: Colors.brown.shade800,
@@ -56,15 +56,16 @@ class Post extends StatelessWidget {
           children: [
             Row(
               children: [
-                Obx(() => userImage(PostController
-                    .to.posts[postIndex].post_owner['user_image'])),
+                Obx(
+                  () => userImage(PostController
+                      .to.posts[postIndex].post_owner.value.user_image?.value),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Obx(
                     () => Text(
-                        PostController.to.posts[postIndex]
-                                .post_owner['user_nickname'] ??
-                            "",
+                        PostController.to.posts[postIndex].post_owner.value
+                            .user_nickname.value,
                         style: const TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold)),
                   ),
@@ -72,7 +73,8 @@ class Post extends StatelessWidget {
               ],
             ),
             AuthService.to.user?.user_id ==
-                    PostController.to.posts[postIndex].post_owner['user_id']
+                    PostController
+                        .to.posts[postIndex].post_owner.value.user_id.value
                 ? PopupMenuButton<String>(
                     constraints:
                         const BoxConstraints.expand(width: 70, height: 110),

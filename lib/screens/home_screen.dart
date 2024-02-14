@@ -11,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int page = 0;
+  int page = 1;
   bool isLoading = false;
   final ScrollController _scrollController = ScrollController();
 
@@ -30,12 +30,18 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = true;
         });
-        final result = await PostController.to.getNextPagePost(page);
+        final result = await PostController.to.getPosts(page: page);
 
-        if (result) {
+        if (result != null) {
+          if (result) {
+            setState(() {
+              isLoading = false;
+              page++;
+            });
+            return;
+          }
           setState(() {
             isLoading = false;
-            page++;
           });
         }
       }

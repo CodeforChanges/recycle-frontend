@@ -16,7 +16,6 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(PostController.to.posts[postIndex].post_comments);
     return Scaffold(
       appBar: renderAppBar(),
       body: Container(
@@ -42,16 +41,38 @@ class _PostScreenState extends State<PostScreen> {
                             PostController.to.posts[postIndex].post_comments !=
                                     null
                                 ? Column(
-                                    children: PostController
-                                        .to.posts[postIndex].post_comments!
-                                        .map((comment) => commentWidget(
-                                              comment['comment_owner']
-                                                  ['user_nickname'],
-                                              comment['comment_content'],
-                                              comment['comment_owner']
-                                                  ['user_image'],
-                                            ))
-                                        .toList(),
+                                    children: List.generate(
+                                      PostController.to.posts[postIndex]
+                                          .post_comments!.length,
+                                      (index) => commentWidget(
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_id
+                                            .value,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_owner
+                                            .value
+                                            .user_nickname,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_content
+                                            .value,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_owner
+                                            .value
+                                            .user_image,
+                                      ),
+                                    ),
                                   )
                                 : Column(
                                     children: [
@@ -108,11 +129,11 @@ class _PostScreenState extends State<PostScreen> {
               ),
             ),
             IconButton(
-                onPressed: () {
-                  PostController.to.addComment(
-                      PostController.to.posts[postIndex].post_id.value,
-                      commentController.text);
+                onPressed: () async {
+                  await PostController.to
+                      .addComment(postIndex, commentController.text);
                   commentController.clear();
+                  PostController.to.update();
                 },
                 icon: Icon(
                   Icons.send,
@@ -124,8 +145,38 @@ class _PostScreenState extends State<PostScreen> {
       );
 
   Widget commentWidget(
-          String user_name, String comment_content, String? user_image) =>
-      Container(
+    int? comment_id,
+    String? user_name,
+    String? comment_content,
+    String? user_image,
+  ) {
+    return GestureDetector(
+      onLongPress: () {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('댓글 삭제'),
+                  content: Text('댓글을 삭제하시겠습니까?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('취소')),
+                    TextButton(
+                        onPressed: () async {
+                          await PostController.to
+                              .deleteComment(comment_id, postIndex);
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          '삭제',
+                          style: TextStyle(color: Colors.red),
+                        )),
+                  ],
+                ));
+      },
+      child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
@@ -138,8 +189,9 @@ class _PostScreenState extends State<PostScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  user_image == null
+                  (user_image == null || user_image == '')
                       ? CircleAvatar(
+                          // ! Colors.brown으로 된 부분을 기본 이미지로 변경 예정.
                           backgroundColor: Colors.brown.shade800,
                         )
                       : CircleAvatar(
@@ -158,12 +210,12 @@ class _PostScreenState extends State<PostScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
-                            user_name,
+                            user_name == null ? 'error' : user_name,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Text(
-                          comment_content,
+                          comment_content == null ? 'error' : comment_content,
                         ),
                       ],
                     ),
@@ -178,5 +230,7 @@ class _PostScreenState extends State<PostScreen> {
             )
           ],
         ),
-      );
+      ),
+    );
+  }
 }

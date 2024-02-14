@@ -23,6 +23,25 @@ class AuthService extends GetxController {
 
   final storage = FlutterSecureStorage();
 
+  Future<int?> getCurrentUserId() async {
+    try {
+      final response = await dio.get(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode != 200) {
+        return null;
+      }
+      int user_id = response.data['user_id'];
+      return user_id;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> signIn(String email, String password) async {
     try {
       Map<String, dynamic> userData = {
