@@ -55,45 +55,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: renderAppBar(),
-      body: Container(
-        color: Colors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            textField(),
-            Expanded(
-              child: Obx(
-                () => ListView.builder(
-                  controller: _scrollController,
-                  itemCount: PostController.to.posts.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      onTap: () {
-                        Get.toNamed('/post', arguments: index);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
+    return GestureDetector(
+      child: Scaffold(
+        appBar: renderAppBar(),
+        body: Container(
+          color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              textField(),
+              Expanded(
+                child: Obx(
+                  () => ListView.builder(
+                    controller: _scrollController,
+                    itemCount: PostController.to.posts.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          Get.toNamed('/post', arguments: index);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: Post(postIndex: index),
                         ),
-                        child: Post(postIndex: index),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-            isLoading
-                ? loadingSkeleton()
-                : Container(
-                    height: 0,
-                  ),
-          ],
+              isLoading
+                  ? loadingSkeleton()
+                  : Container(
+                      height: 0,
+                    ),
+            ],
+          ),
         ),
+        floatingActionButton: addPostBtn(),
       ),
-      floatingActionButton: addPostBtn(),
     );
   }
 
@@ -133,7 +135,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget textField() => Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
         child: TextField(
-          onChanged: (value) => {PostController.to.getPostsBySearch(value)},
+          onChanged: (value) async {
+            if (value.isNotEmpty) {
+              PostController.to.getPostsBySearch(value);
+            } else {
+              setState(() {
+                page = 1;
+                PostController.to.posts.clear();
+                PostController.to.getPosts(page: 0);
+              });
+            }
+          },
           decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
               hintText: '원하는 재활용 꿀팁을 검색해보세요',
