@@ -72,7 +72,7 @@ class Post extends StatelessWidget {
                 )
               ],
             ),
-            AuthService.to.user?.user_id ==
+            AuthService.to.user.value.user_id ==
                     PostController
                         .to.posts[postIndex].post_owner.value.user_id.value
                 ? PopupMenuButton<String>(

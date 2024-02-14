@@ -1,9 +1,11 @@
+import 'package:get/get.dart';
+
 class User {
   final int? user_id;
   final String user_name;
-  final String user_nickname;
+  RxString? user_nickname;
   final String user_email;
-  final String? user_image;
+  RxString? user_image;
   final String? user_password;
 
   User({
@@ -30,9 +32,9 @@ class User {
     return User(
       user_id: json['user_id'],
       user_name: json['user_name'],
-      user_nickname: json['user_nickname'],
+      user_nickname: RxString(json['user_nickname'] ?? ""),
       user_email: json['user_email'],
-      user_image: json['user_image'],
+      user_image: RxString(json['user_image'] ?? ""),
       user_password: json['user_password'],
     );
   }
