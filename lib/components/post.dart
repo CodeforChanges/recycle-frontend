@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:recycle/controller/auth_service.dart';
 import 'package:recycle/controller/post_controller.dart';
+import 'package:recycle/utils/color_utils.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:intl/intl.dart';
 
@@ -241,10 +242,21 @@ class Post extends StatelessWidget {
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
-              child: Text(
-                '#재활용',
-                style: TextStyle(
-                    fontSize: 16.0, height: 1.5, color: Color(0xff33691E)),
+              child: Wrap(
+                children: List.generate(
+                  PostController.to.posts[postIndex].post_tags.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      PostController
+                          .to.posts[postIndex].post_tags[index].tag_name,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             Padding(

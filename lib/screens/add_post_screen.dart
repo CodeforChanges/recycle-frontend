@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:recycle/controller/post_controller.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:recycle/utils/color_utils.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
@@ -17,6 +18,7 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   TextEditingController textController = TextEditingController();
   List<Future<String>> userImagePaths = [];
+  List<String> tagList = [];
 
   final storage = FirebaseStorage.instance;
 
@@ -27,6 +29,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   int? postId;
 
   bool? isEditMode;
+
+  bool isUpdating = false;
 
   final arguments = Get.arguments;
 
@@ -48,6 +52,46 @@ class _AddPostScreenState extends State<AddPostScreen> {
             .cast<Future<String>>();
       });
     }
+
+    void updateText() {
+      if (isUpdating) return;
+
+      isUpdating = true;
+
+      RegExp regExp = RegExp(r'#(\w+)\b(?=\s)');
+
+      RegExpMatch? matches = regExp.firstMatch(textController.text);
+
+      if (matches == null) {
+        isUpdating = false;
+        return;
+      }
+
+      setState(() {
+        tagList.add(matches.group(0)?.trim() as String);
+      });
+
+      String newText = textController.text.replaceAll(RegExp(r'#\w+\b'), '');
+
+      int cursorPosition = textController.selection.baseOffset;
+      cursorPosition =
+          cursorPosition > newText.length ? newText.length : cursorPosition;
+      textController.value = TextEditingValue(
+        text: newText,
+        selection:
+            TextSelection.fromPosition(TextPosition(offset: cursorPosition)),
+      );
+
+      isUpdating = false;
+    }
+
+    textController.addListener(updateText);
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,11 +105,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
             children: [
               textField(),
               imagesWidget(),
+              tagListWidget(),
               divider(),
               addPhotoBtn(),
             ],
           ),
         ));
+  }
+
+  Container tagListWidget() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Wrap(
+        children: List.generate(
+          tagList.length,
+          (index) => Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: const EdgeInsets.only(right: 8),
+            child: Chip(
+              backgroundColor: primaryColor,
+              label: Text(
+                tagList[index],
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              deleteIcon: const Icon(Icons.close, color: Colors.white),
+              onDeleted: () {
+                setState(() {
+                  tagList.removeAt(index);
+                });
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   AppBar renderAppBar() => AppBar(
@@ -76,18 +154,44 @@ class _AddPostScreenState extends State<AddPostScreen> {
         actions: [
           IconButton(
             onPressed: () async {
+              if (textController.text.isEmpty) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('내용을 입력해주세요'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                return;
+              }
               final imagePaths = await Future.wait(userImagePaths);
               if (userImagePaths.isEmpty) {
-                AlertDialog(
-                  title: const Text('이미지를 추가해주세요'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: const Text('확인'),
-                    ),
-                  ],
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('이미지를 추가해주세요'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
                 return;
               }
@@ -99,16 +203,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   imagePaths,
                 );
                 if (result == false) {
-                  AlertDialog(
-                    title: const Text('글 수정에 실패했습니다.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Get.back();
-                        },
-                        child: const Text('확인'),
-                      ),
-                    ],
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('글 수정에 실패했습니다.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Get.back();
+                          },
+                          child: const Text(
+                            '확인',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                   return;
                 }
@@ -120,9 +230,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
               await PostController.to.postData(
                 textController.text,
                 imagePaths,
+                tagList,
               );
-              // ! 포스트 추가시 업데이트가 반영이 안됨...
-              // ! 업데이트시 반환되는 데이터를 없애도 될듯 합니다.
               PostController.to.getPosts();
               Get.toNamed('/');
             },
