@@ -125,7 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 context,
                 User(
                   user_name: nameController.text,
-                  user_nickname: nicknameController.text,
+                  user_nickname: nicknameController.text.obs,
                   user_email: emailController.text,
                   user_password: passwordController.text,
                 ));

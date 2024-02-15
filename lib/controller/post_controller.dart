@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
@@ -13,6 +14,9 @@ class PostController extends GetxController {
   RxString _token = ''.obs;
   RxInt activeIndex = 0.obs;
   RxInt popupMenuIndex = 0.obs;
+  RxList<Post> recommendPost = <Post>[].obs;
+  RxInt selectedRecommendIndex = 0.obs;
+  RxString search = ''.obs;
 
   @override
   void onInit() async {
@@ -21,7 +25,7 @@ class PostController extends GetxController {
     if (accessToken != null) {
       _token.value = accessToken;
     }
-    await getPosts();
+    await getPosts(page: 0);
   }
 
   final storage = FlutterSecureStorage();
@@ -32,7 +36,6 @@ class PostController extends GetxController {
         'post_content': post_content,
         'post_images': post_images,
       };
-      print(post);
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/post'),
         options: Options(
@@ -43,8 +46,9 @@ class PostController extends GetxController {
       );
 
       if (response.statusCode == 201) {
-        posts.insert(0, Post.fromJson(response.data));
-        Get.back();
+        final newPost = Post.fromJson(response.data);
+        print(newPost);
+        posts.insert(0, newPost);
         print('Post Success');
       } else {
         print('Post Failure');
@@ -54,25 +58,60 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> getPosts() async {
+  Future<bool?> getPosts({int? owner_id, int page = 0}) async {
     try {
+      String ownerQuery = owner_id != null ? 'owner=$owner_id' : '';
+      String pageQuery = 'page=$page';
+      print("=====================================");
+      print(ownerQuery);
+      print(pageQuery);
       Response response = await dio.get(
-        ('${dotenv.get('SERVER')}/post'),
+        ('${dotenv.get('SERVER')}/post?$ownerQuery$pageQuery'),
         options: Options(
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
       );
 
-      if (response.statusCode == 200) {
-        posts.value =
-            response.data.map<Post>((post) => Post.fromJson(post)).toList();
-        print('Get Posts Success');
-      } else {
+      if (response.statusCode != 200) {
         print('Get Posts Failure');
+        return null;
       }
+
+      if (response.data.length == 0) {
+        print('Get Posts Success');
+        return false;
+      }
+
+      posts.addAll(
+          response.data.map<Post>((post) => Post.fromJson(post)).toList());
+      print('Get Posts Success');
+      return true;
     } catch (e) {
       print('Error while getting posts is $e');
+      return null;
+    }
+  }
+
+  Future<void> getPostsBySearch(String keyword) async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/search'),
+        data: {"keyword": keyword},
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode == 201) {
+        posts.value =
+            response.data.map<Post>((post) => Post.fromJson(post)).toList();
+        return;
+      }
+      print("get post not successful");
+    } catch (e) {
+      print('get post has an error');
+      print(e);
     }
   }
 
@@ -97,6 +136,37 @@ class PostController extends GetxController {
     }
   }
 
+  Future<bool> updatePost(
+      int? post_id, String post_content, List<String> post_images) async {
+    if (post_id == null) return false;
+    try {
+      Map<String, dynamic> post = {
+        'post_content': post_content,
+        'post_images': post_images,
+        'post_tags': [],
+      };
+      Response response = await dio.patch(
+        ('${dotenv.get('SERVER')}/post/$post_id'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: post,
+      );
+
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        print('Update Post Success');
+        return true;
+      }
+      print('Update Post Failure');
+      return false;
+    } catch (e) {
+      print('Error while updating post is $e');
+      return false;
+    }
+  }
 
   Future<void> likePost(int postIndex) async {
     try {
@@ -143,7 +213,7 @@ class PostController extends GetxController {
     }
   }
 
-  Future<void> addComment(int postId, String comment) async {
+  Future<void> addComment(int postIndex, String comment) async {
     try {
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/comment'),
@@ -151,14 +221,18 @@ class PostController extends GetxController {
           contentType: Headers.jsonContentType,
           headers: {'Authorization': 'Bearer ${_token.value}'},
         ),
-        data: {'comment_content': comment, 'post_id': postId},
+        data: {
+          'comment_content': comment,
+          'post_id': posts[postIndex].post_id.value,
+        },
       );
 
       if (response.statusCode == 201) {
-        print(response.data);
-        print(postId);
-        print(posts[postId].post_comments);
-        // posts[postId].post_comments!.add(Comment.fromJson(response.data));
+        if (response.data != null) {
+          posts[postIndex]
+              .post_comments
+              ?.insert(0, Comment.fromJson(response.data));
+        }
         print('Post Comment Success');
       } else {
         print('Post Comment Failure');
@@ -168,27 +242,35 @@ class PostController extends GetxController {
     }
   }
 
-  // Future<void> deleteComment(int postId, int commentIndex) async {
-  //   try {
-  //     Response response = await dio.delete(
-  //       ('${dotenv.get('SERVER')}/comment/${posts[postId].post_comments![commentIndex]['comment_id']}'),
-  //       options: Options(
-  //         contentType: Headers.jsonContentType,
-  //         headers: {'Authorization': 'Bearer ${_token.value}'},
-  //       ),
-  //     );
+  Future<String> uploadImage(Image image) async {
+    return 'url';
+  }
 
-  //     if (response.statusCode == 200) {
-  //       posts[postId].post_comments!.removeAt(commentIndex);
-  //       print('Delete Comment Success');
-  //     } else {
-  //       print('Delete Comment Failure');
-  //     }
-  //   } catch (e) {
-  //     print('Error while deleting comment is $e');
-  //   }
-  // }
+  Future<bool> deleteComment(int? comment_id, int? postIndex) async {
+    try {
+      if (comment_id == null || postIndex == null) return false;
+      Response response = await dio.delete(
+        ('${dotenv.get('SERVER')}/comment/${comment_id}'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        posts[postIndex]
+            .post_comments!
+            .removeWhere((element) => element.comment_id.value == comment_id);
+        print('Delete Comment Success');
+        return true;
+      }
+      print('Delete Comment Failure');
+      return false;
+    } catch (e) {
+      print('Error while deleting comment is $e');
+      return false;
+    }
+  }
 
   // 추천 포스트 받아오는 로직 작성 예정.
-
 }

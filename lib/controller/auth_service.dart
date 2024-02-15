@@ -7,7 +7,7 @@ import 'package:get/get.dart' hide Response;
 class AuthService extends GetxController {
   static AuthService get to => Get.find();
 
-  User? user;
+  late Rx<User> user;
   Dio dio = Dio();
   RxString _token = ''.obs;
 
@@ -22,6 +22,25 @@ class AuthService extends GetxController {
   }
 
   final storage = FlutterSecureStorage();
+
+  Future<int?> getCurrentUserId() async {
+    try {
+      final response = await dio.get(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode != 200) {
+        return null;
+      }
+      int user_id = response.data['user_id'];
+      return user_id;
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<void> signIn(String email, String password) async {
     try {
@@ -89,7 +108,7 @@ class AuthService extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        user = User.fromJson(response.data);
+        user = Rx<User>(User.fromJson(response.data));
         print("Get User Success");
       } else {
         print("Get User Failure");
@@ -119,6 +138,60 @@ class AuthService extends GetxController {
       }
     } catch (e) {
       print("Error during user deletion: $e");
+    }
+  }
+
+  Future<bool> updateUserNickName(String nickname) async {
+    try {
+      Response response = await dio.patch(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: {"user_nickname": nickname},
+      );
+
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      user.update((val) {
+        val!.user_nickname!.value = nickname;
+      });
+
+      return true;
+    } catch (e) {
+      print("Error during updating user nickname: $e");
+      return false;
+    }
+  }
+
+  Future<bool> updateUserImage(String? image) async {
+    try {
+      if (image == null) {
+        return false;
+      }
+      Response response = await dio.patch(
+        ('${dotenv.get('SERVER')}/user'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+        data: {"user_image": image},
+      );
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      user.update((val) {
+        val!.user_image!.value = image;
+      });
+
+      return true;
+    } catch (e) {
+      print("Error during updating user image: $e");
+      return false;
     }
   }
 }

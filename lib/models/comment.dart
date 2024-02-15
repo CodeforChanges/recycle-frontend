@@ -1,12 +1,10 @@
+import 'package:get/get.dart';
+
 class Comment {
-  int comment_id = 0;
-  String comment_content = '';
-  CommentOwner comment_owner = CommentOwner(
-    user_id: 0,
-    user_nickname: '',
-    user_image: null,
-  );
-  String reg_date = '';
+  RxInt comment_id = 0.obs;
+  RxString comment_content = ''.obs;
+  late Rx<CommentOwner> comment_owner;
+  RxString reg_date = ''.obs;
 
   Comment({
     required this.comment_id,
@@ -16,10 +14,11 @@ class Comment {
   });
 
   Comment.fromJson(Map<String, dynamic> json) {
-    comment_id = json['comment_id'] ?? 0;
-    comment_content = json['comment_content'] ?? '';
-    comment_owner = CommentOwner.fromJson(json['comment_owner']);
-    reg_date = json['reg_date'] ?? '';
+    comment_id = RxInt(json['comment_id'] ?? 0);
+    comment_content = RxString(json['comment_content'] ?? '');
+    comment_owner =
+        Rx<CommentOwner>(CommentOwner.fromJson(json['comment_owner']));
+    reg_date = RxString(json['reg_date'] ?? '');
   }
 }
 
