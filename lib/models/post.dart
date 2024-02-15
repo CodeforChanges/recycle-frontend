@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:recycle/models/comment.dart';
 
+import 'tag.dart';
+
 class Post {
   RxInt post_id = 0.obs;
   RxString post_content = ''.obs;
@@ -12,6 +14,7 @@ class Post {
   RxInt? likesCount = 0.obs;
   RxInt? sharesCount = 0.obs;
   RxBool? isLiked = false.obs;
+  RxList<Tag> post_tags = <Tag>[].obs;
 
   Post({
     required this.post_id,
@@ -20,6 +23,7 @@ class Post {
     required this.reg_date,
     required this.post_images,
     required this.post_owner,
+    required this.post_tags,
     this.post_comments,
     this.likesCount,
     this.sharesCount,
@@ -27,6 +31,7 @@ class Post {
   });
 
   Post.fromJson(Map<String, dynamic> json) {
+    print(json['post']['post_tags']);
     post_id = RxInt(json['post']['post_id'] ?? 0);
     post_content = RxString(json['post']['post_content'] ?? '');
     post_owner_id = RxInt(json['post']['post_owner_id'] ?? 0);
@@ -41,6 +46,11 @@ class Post {
     likesCount = RxInt(json['post']['likesCount'] ?? 0);
     sharesCount = RxInt(json['post']['sharesCount'] ?? 0);
     isLiked = RxBool(json['post']['isLiked'] ?? false);
+    post_tags = RxList(json['post']['post_tags']
+            ?.map((tag) => Tag.fromJson(tag))
+            .toList()
+            ?.cast<Tag>() ??
+        []);
   }
 }
 

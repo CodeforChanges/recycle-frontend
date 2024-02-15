@@ -30,11 +30,13 @@ class PostController extends GetxController {
 
   final storage = FlutterSecureStorage();
 
-  Future<void> postData(String post_content, List<String> post_images) async {
+  Future<void> postData(String post_content, List<String> post_images,
+      List<String> tagList) async {
     try {
       Map<String, dynamic> post = {
         'post_content': post_content,
         'post_images': post_images,
+        'post_tags': tagList,
       };
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/post'),
