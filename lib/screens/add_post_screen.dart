@@ -56,33 +56,35 @@ class _AddPostScreenState extends State<AddPostScreen> {
     void updateText() {
       if (isUpdating) return;
 
-      isUpdating = true;
+      if (textController.text.endsWith(" ")) {
+        isUpdating = true;
 
-      RegExp regExp = RegExp(r'#(\w+)\b(?=\s)');
+        RegExp regExp = RegExp(r'#([\w가-힣]+)');
 
-      RegExpMatch? matches = regExp.firstMatch(textController.text);
+        RegExpMatch? matches = regExp.firstMatch(textController.text);
 
-      if (matches == null) {
+        if (matches == null) {
+          isUpdating = false;
+          return;
+        }
+
+        setState(() {
+          tagList.add(matches.group(0)?.trim() as String);
+        });
+
+        String newText = textController.text.replaceAll(regExp, '');
+
+        int cursorPosition = textController.selection.baseOffset;
+        cursorPosition =
+            cursorPosition > newText.length ? newText.length : cursorPosition;
+        textController.value = TextEditingValue(
+          text: newText,
+          selection:
+              TextSelection.fromPosition(TextPosition(offset: cursorPosition)),
+        );
+
         isUpdating = false;
-        return;
       }
-
-      setState(() {
-        tagList.add(matches.group(0)?.trim() as String);
-      });
-
-      String newText = textController.text.replaceAll(RegExp(r'#\w+\b'), '');
-
-      int cursorPosition = textController.selection.baseOffset;
-      cursorPosition =
-          cursorPosition > newText.length ? newText.length : cursorPosition;
-      textController.value = TextEditingValue(
-        text: newText,
-        selection:
-            TextSelection.fromPosition(TextPosition(offset: cursorPosition)),
-      );
-
-      isUpdating = false;
     }
 
     textController.addListener(updateText);
@@ -222,8 +224,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   );
                   return;
                 }
-                PostController.to.getPosts();
-                Get.back();
+                await PostController.to.getPosts();
+                Get.toNamed('/home');
                 return;
               }
 
@@ -232,8 +234,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 imagePaths,
                 tagList,
               );
-              PostController.to.getPosts();
-              Get.toNamed('/');
+              Get.back();
+              return;
             },
             icon: const Icon(Icons.check),
           ),

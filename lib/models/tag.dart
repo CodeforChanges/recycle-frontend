@@ -10,7 +10,7 @@ class Tag {
   factory Tag.fromJson(Map<String, dynamic> json) {
     return Tag(
       tag_name: json['tag_name'],
-      post_id: json['post_id'],
+      post_id: json['post_id'] ?? 0,
     );
   }
 }

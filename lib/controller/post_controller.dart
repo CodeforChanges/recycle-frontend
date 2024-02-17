@@ -32,6 +32,7 @@ class PostController extends GetxController {
 
   Future<void> postData(String post_content, List<String> post_images,
       List<String> tagList) async {
+    print('tagList: $tagList');
     try {
       Map<String, dynamic> post = {
         'post_content': post_content,
@@ -64,9 +65,6 @@ class PostController extends GetxController {
     try {
       String ownerQuery = owner_id != null ? 'owner=$owner_id' : '';
       String pageQuery = 'page=$page';
-      print("=====================================");
-      print(ownerQuery);
-      print(pageQuery);
       Response response = await dio.get(
         ('${dotenv.get('SERVER')}/post?$ownerQuery$pageQuery'),
         options: Options(
@@ -85,8 +83,9 @@ class PostController extends GetxController {
         return false;
       }
 
-      posts.addAll(
-          response.data.map<Post>((post) => Post.fromJson(post)).toList());
+      posts.addAll(response.data
+          .map<Post>((post) => Post.fromJson(post['post']))
+          .toList());
       print('Get Posts Success');
       return true;
     } catch (e) {
@@ -106,8 +105,12 @@ class PostController extends GetxController {
         ),
       );
       if (response.statusCode == 201) {
-        posts.value =
-            response.data.map<Post>((post) => Post.fromJson(post)).toList();
+        print('response from search api: ${response.data}');
+        posts.clear();
+        posts.addAll(response.data
+            .map<Post>((post) => Post.fromJson(post['post']))
+            .toList());
+        print("searched post list: ${posts.value}");
         return;
       }
       print("get post not successful");
