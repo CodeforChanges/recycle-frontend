@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
+import 'package:recycle/controller/auth_service.dart';
 import 'package:recycle/controller/post_controller.dart';
+import 'package:recycle/utils/color_utils.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:intl/intl.dart';
 
 class Post extends StatelessWidget {
-  final int postIndex;
   const Post({super.key, required this.postIndex});
+  final int postIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +18,36 @@ class Post extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            header(), //! 유저 이미지 때문에 터지는 듯
+            header(), //! 유저 이미지 때문에 터지는 듯 => 해결 했습니다!
             postImages(),
             socialMetrics(),
             contents(),
           ],
         ));
+  }
+
+  String getFormattedDate(String reg_date) {
+    try {
+      return DateFormat('yyyy-MM-dd').format(DateTime.parse(reg_date));
+    } catch (e) {
+      return "Error while parsing date";
+    }
+  }
+
+  CircleAvatar userImage(String? image) {
+    return (image == null || image.isEmpty)
+        ? CircleAvatar(
+            radius: 22.5,
+            backgroundColor: Colors.brown.shade800,
+          )
+        : CircleAvatar(
+            radius: 22.5,
+            backgroundImage: NetworkImage(image),
+            onBackgroundImageError: (exception, stackTrace) => CircleAvatar(
+              radius: 22.5,
+              backgroundColor: Colors.brown.shade800,
+            ),
+          );
   }
 
   Widget header() => Padding(
@@ -31,37 +57,50 @@ class Post extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Obx(() => CircleAvatar(
-                //     radius: 22.5,
-                //     backgroundImage: AssetImage(PostController
-                //         .to.posts[postIndex].post_owner.user_image))),
+                Obx(
+                  () => userImage(PostController
+                      .to.posts[postIndex].post_owner.value.user_image?.value),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Obx(
                     () => Text(
-                        PostController
-                            .to.posts[postIndex].post_owner['user_nickname'],
+                        PostController.to.posts[postIndex].post_owner.value
+                            .user_nickname.value,
                         style: const TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold)),
                   ),
                 )
               ],
             ),
-            Row(
-              children: [
-                PopupMenuButton<String>(
-                  constraints:
-                      const BoxConstraints.expand(width: 70, height: 110),
-                  itemBuilder: (ctx) => [
-                    _buildPopupMenuItem('수정'),
-                    _buildPopupMenuItem('삭제'),
-                  ],
-                  onSelected: (String index) => index == '수정'
-                      ? print('수정')
-                      : PostController.to.deletePost(postIndex),
-                )
-              ],
-            ),
+            AuthService.to.user.value.user_id ==
+                    PostController
+                        .to.posts[postIndex].post_owner.value.user_id.value
+                ? PopupMenuButton<String>(
+                    constraints:
+                        const BoxConstraints.expand(width: 70, height: 110),
+                    itemBuilder: (ctx) => [
+                      _buildPopupMenuItem('수정'),
+                      _buildPopupMenuItem('삭제'),
+                    ],
+                    onSelected: (String index) => index == '수정'
+                        ? Get.toNamed(
+                            '/write',
+                            arguments: {
+                              "content": PostController
+                                  .to.posts[postIndex].post_content.value,
+                              "images": PostController
+                                  .to.posts[postIndex].post_images
+                                  .map((element) =>
+                                      element['image_link'] as String)
+                                  .toList(),
+                              "postId": PostController
+                                  .to.posts[postIndex].post_id.value
+                            },
+                          )
+                        : PostController.to.deletePost(postIndex),
+                  )
+                : Container(),
           ],
         ),
       );
@@ -85,20 +124,55 @@ class Post extends StatelessWidget {
               ),
               itemCount: PostController.to.posts[postIndex].post_images.length,
               itemBuilder: (context, index, realIndex) {
-                final path = PostController
-                    .to.posts[postIndex].post_images[index]['image_link'];
-                return imageSlider(path, index);
+                try {
+                  final path = PostController
+                      .to.posts[postIndex].post_images[index]['image_link'];
+                  return imageSlider(path, index);
+                } catch (e) {
+                  print(e);
+                  return Container(
+                    width: double.infinity,
+                    height: 240,
+                    child: const Center(
+                      child: Text('이미지를 불러오는데 실패했습니다.'),
+                    ),
+                  );
+                }
               },
             ),
             Align(alignment: Alignment.bottomCenter, child: indicator())
           ]));
 
-  Widget imageSlider(path, index) => Container(
-        width: double.infinity,
-        height: 240,
-        color: Colors.grey,
-        child: Image.asset(path, fit: BoxFit.cover),
-      );
+  Widget imageSlider(path, index) {
+    print(path.runtimeType);
+    return Container(
+      width: double.infinity,
+      height: 240,
+      color: Colors.grey[200],
+      child: Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: double.infinity,
+            height: 240,
+            child: const Center(
+              child: Text('이미지를 불러오는데 실패했습니다.'),
+            ),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          return Container(
+            width: double.infinity,
+            height: 240,
+            child: loadingProgress != null
+                ? const Center(child: CircularProgressIndicator())
+                : child,
+          );
+        },
+      ),
+    );
+  }
 
   Widget indicator() => Container(
       margin: const EdgeInsets.only(bottom: 20.0),
@@ -119,13 +193,17 @@ class Post extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  PostController.to.posts[postIndex].isLiked!.value == false
+                      ? await PostController.to.likePost(postIndex)
+                      : await PostController.to.unlikePost(postIndex);
+                },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
                   child: Obx(() => Icon(
                       PostController.to.posts[postIndex].isLiked!.value
-                          ? Icons.favorite_border
-                          : Icons.favorite,
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       color: Color(0xff008000))),
                 )),
             Padding(
@@ -164,20 +242,32 @@ class Post extends StatelessWidget {
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
-              child: Text(
-                '#재활용',
-                style: TextStyle(
-                    fontSize: 16.0, height: 1.5, color: Color(0xff33691E)),
+              child: Wrap(
+                children: List.generate(
+                  PostController.to.posts[postIndex].post_tags.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      PostController
+                          .to.posts[postIndex].post_tags[index].tag_name,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 20),
               child: Obx(
                 () => Text(
-                    DateFormat('yyyy-MM-dd').format(DateTime.parse(
-                        PostController.to.posts[postIndex].reg_date)),
-                    style: TextStyle(
-                        fontSize: 12.0, height: 1.5, color: Colors.grey)),
+                  getFormattedDate(
+                      PostController.to.posts[postIndex].reg_date.toString()),
+                  style: TextStyle(
+                      fontSize: 12.0, height: 1.5, color: Colors.grey),
+                ),
               ),
             ),
           ],

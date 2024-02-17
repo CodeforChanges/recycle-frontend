@@ -47,8 +47,9 @@ class _SettingScreenState extends State<SettingScreen> {
       );
 
   Widget menusWidget({required BuildContext context}) => Column(
-      children: settings
-          .map((menu) => Column(
+        children: settings
+            .map(
+              (menu) => Column(
                 children: [
                   titleWidget(title: menu.title),
                   ...menu.menus
@@ -59,8 +60,10 @@ class _SettingScreenState extends State<SettingScreen> {
                           ))
                       .toList()
                 ],
-              ))
-          .toList());
+              ),
+            )
+            .toList(),
+      );
 
   Widget titleWidget({required String title}) => Column(
         children: [

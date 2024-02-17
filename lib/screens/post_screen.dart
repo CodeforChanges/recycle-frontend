@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recycle/components/post.dart';
+import 'package:recycle/controller/post_controller.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({super.key});
@@ -10,7 +11,9 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  int index = Get.arguments;
+  int postIndex = Get.arguments;
+  TextEditingController commentController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,11 +33,59 @@ class _PostScreenState extends State<PostScreen> {
                             bottom: BorderSide(color: Colors.grey, width: 0.5),
                           ),
                         ),
-                        child: Post(postIndex: index),
+                        child: Post(postIndex: postIndex),
                       ),
-                      commentWidget(),
-                      commentWidget(),
-                      commentWidget(),
+                      Obx(
+                        () => Column(
+                          children: [
+                            PostController.to.posts[postIndex].post_comments !=
+                                    null
+                                ? Column(
+                                    children: List.generate(
+                                      PostController.to.posts[postIndex]
+                                          .post_comments!.length,
+                                      (index) => commentWidget(
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_id
+                                            .value,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_owner
+                                            .value
+                                            .user_nickname,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_content
+                                            .value,
+                                        PostController
+                                            .to
+                                            .posts[postIndex]
+                                            .post_comments?[index]
+                                            .comment_owner
+                                            .value
+                                            .user_image,
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 12, 16, 12),
+                                        child: Text('댓글이 없습니다.'),
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -67,6 +118,7 @@ class _PostScreenState extends State<PostScreen> {
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: TextField(
+                  controller: commentController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -77,7 +129,12 @@ class _PostScreenState extends State<PostScreen> {
               ),
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await PostController.to
+                      .addComment(postIndex, commentController.text);
+                  commentController.clear();
+                  PostController.to.update();
+                },
                 icon: Icon(
                   Icons.send,
                   size: 28,
@@ -87,7 +144,39 @@ class _PostScreenState extends State<PostScreen> {
         ),
       );
 
-  Widget commentWidget() => Container(
+  Widget commentWidget(
+    int? comment_id,
+    String? user_name,
+    String? comment_content,
+    String? user_image,
+  ) {
+    return GestureDetector(
+      onLongPress: () {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('댓글 삭제'),
+                  content: Text('댓글을 삭제하시겠습니까?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('취소')),
+                    TextButton(
+                        onPressed: () async {
+                          await PostController.to
+                              .deleteComment(comment_id, postIndex);
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          '삭제',
+                          style: TextStyle(color: Colors.red),
+                        )),
+                  ],
+                ));
+      },
+      child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
@@ -100,9 +189,19 @@ class _PostScreenState extends State<PostScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage('assets/images/profile.jpg')),
+                  (user_image == null || user_image == '')
+                      ? CircleAvatar(
+                          // ! Colors.brown으로 된 부분을 기본 이미지로 변경 예정.
+                          backgroundColor: Colors.brown.shade800,
+                        )
+                      : CircleAvatar(
+                          radius: 20,
+                          backgroundImage: NetworkImage(
+                            user_image,
+                          ),
+                          onBackgroundImageError: (exception, stackTrace) =>
+                              null,
+                        ),
                   Container(
                     padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                     child: Column(
@@ -111,12 +210,12 @@ class _PostScreenState extends State<PostScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
-                            'indevruis',
+                            user_name == null ? 'error' : user_name,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Text(
-                          '안녕하세요 adjof isa adjf iodajf ioaa   ',
+                          comment_content == null ? 'error' : comment_content,
                         ),
                       ],
                     ),
@@ -131,5 +230,7 @@ class _PostScreenState extends State<PostScreen> {
             )
           ],
         ),
-      );
+      ),
+    );
+  }
 }
