@@ -17,8 +17,8 @@ Future<void> main() async {
   );
 
   final List<CameraDescription> cameras = await availableCameras();
-  Get.put(AuthService());
-  Get.put(PostController());
+  Get.put(await AuthService());
+  Get.put(await PostController());
   runApp(MyApp(cameras: cameras));
 }
 

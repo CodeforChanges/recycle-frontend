@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 buildscript {
     ext.kotlin_version = '1.9.20'
     repositories {
@@ -15,6 +16,8 @@ buildscript {
 
 }
 
+=======
+>>>>>>> d749680 (fix: 로그인시 포스트 및 유저 초기화 안되던 문제 해결)
 allprojects {
     repositories {
         google()

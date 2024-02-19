@@ -7,13 +7,7 @@ import 'package:get/get.dart' hide Response;
 class AuthService extends GetxController {
   static AuthService get to => Get.find();
 
-  Rx<User> user = User(
-    user_id: 0,
-    user_email: '',
-    user_name: '',
-    user_nickname: ''.obs,
-    user_image: ''.obs,
-  ).obs;
+  late Rx<User> user;
 
   Dio dio = Dio();
   RxString _token = ''.obs;
@@ -53,7 +47,7 @@ class AuthService extends GetxController {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     try {
       Map<String, dynamic> userData = {
         'user_email': email,
@@ -71,14 +65,15 @@ class AuthService extends GetxController {
         print(response.data['access_token']);
         await storage.write(
             key: "access_token", value: response.data['access_token']);
-        await this.getUser();
+        _token.value = response.data['access_token'];
         print("SignIn Success");
-        Get.offAllNamed('/');
-      } else {
-        print("SignIn Failure");
+        return true;
       }
+      print("SignIn Failure");
+      return false;
     } catch (e) {
       print("Error during sign-in: $e");
+      return false;
     }
   }
 
