@@ -110,7 +110,6 @@ class PostController extends GetxController {
         posts.addAll(response.data
             .map<Post>((post) => Post.fromJson(post['post']))
             .toList());
-        print("searched post list: ${posts.value}");
         return;
       }
       print("get post not successful");

@@ -7,18 +7,29 @@ import 'package:get/get.dart' hide Response;
 class AuthService extends GetxController {
   static AuthService get to => Get.find();
 
-  late Rx<User> user;
+  Rx<User> user = User(
+    user_id: 0,
+    user_email: '',
+    user_name: '',
+    user_nickname: ''.obs,
+    user_image: ''.obs,
+  ).obs;
+
   Dio dio = Dio();
   RxString _token = ''.obs;
 
   @override
   void onInit() async {
-    super.onInit();
-    String? accessToken = await storage.read(key: "access_token");
-    if (accessToken != null) {
-      _token.value = accessToken;
+    try {
+      super.onInit();
+      String? accessToken = await storage.read(key: "access_token");
+      if (accessToken != null) {
+        _token.value = accessToken;
+      }
+      await this.getUser();
+    } catch (e) {
+      print("Error during onInit: $e");
     }
-    await getUser();
   }
 
   final storage = FlutterSecureStorage();
@@ -57,9 +68,10 @@ class AuthService extends GetxController {
       );
 
       if (response.statusCode == 201) {
+        print(response.data['access_token']);
         await storage.write(
             key: "access_token", value: response.data['access_token']);
-        await getUser();
+        await this.getUser();
         print("SignIn Success");
         Get.offAllNamed('/');
       } else {
