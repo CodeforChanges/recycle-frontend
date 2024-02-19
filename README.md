@@ -1,3 +1,4 @@
+=======
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -78,8 +79,6 @@ This project was built with Flutter, leveraging various libraries and tools:
 - [![Firebase][Firebase.io]][Firebase_url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Getting Started
 
 To get a local copy up and running follow these simple steps.
 
@@ -191,3 +190,5 @@ Project Link: [https://github.com/CodeforChanges/recycle-frontend](https://githu
 [Firebase]: https://firebase.google.com/?hl=ko
 [Firebase_url]: https://firebase.google.com/?hl=ko
 [Firebase.io]: https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white
+
+> > > > > > > main
