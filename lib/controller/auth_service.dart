@@ -48,7 +48,6 @@ class AuthService extends GetxController {
         'user_email': email,
         'user_password': password,
       };
-
       Response response = await dio.post(
         ('${dotenv.get('SERVER')}/auth'),
         options: Options(
@@ -60,7 +59,7 @@ class AuthService extends GetxController {
       if (response.statusCode == 201) {
         await storage.write(
             key: "access_token", value: response.data['access_token']);
-        await this.getUser();
+        await getUser();
         print("SignIn Success");
         Get.offAllNamed('/');
       } else {
