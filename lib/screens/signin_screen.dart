@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:recycle/controller/auth_service.dart';
 import 'package:recycle/controller/post_controller.dart';
-import 'package:recycle/screens/signup_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -77,6 +76,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   AppBar renderAppBar() => AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('로그인'),
         backgroundColor: Colors.white,
         bottomOpacity: 0.0,
@@ -149,7 +149,7 @@ class _SignInScreenState extends State<SignInScreen> {
             width: 20.0,
           ),
           TextButton(
-              onPressed: () => Get.to(() => SignUpScreen()),
+              onPressed: () => Get.offAllNamed('/signup'),
               child: const Text(
                 '회원가입',
                 style: TextStyle(color: Color(0xff008000)),

@@ -110,7 +110,7 @@ class UserInf extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          AuthService.to.user.value.user_nickname?.value ?? "",
+                          AuthService.to.user.value.user_nickname.value ?? "",
                           style: const TextStyle(
                               fontWeight: FontWeight.w500, fontSize: 20.0),
                         ),

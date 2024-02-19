@@ -89,7 +89,7 @@ class AuthService extends GetxController {
 
       if (response.statusCode == 201) {
         print("SignUp Success");
-        Get.replace('/signin');
+        Get.offAllNamed('/signin');
       } else {
         print("SignUp Failure");
       }
@@ -163,7 +163,7 @@ class AuthService extends GetxController {
       }
 
       user.update((val) {
-        val!.user_nickname!.value = nickname;
+        val!.user_nickname.value = nickname;
       });
 
       return true;

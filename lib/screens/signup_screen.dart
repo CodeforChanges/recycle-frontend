@@ -128,7 +128,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   user_email: emailController.text,
                   user_password: passwordController.text,
                 ));
-            // contoller
           },
           style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xff008000),
