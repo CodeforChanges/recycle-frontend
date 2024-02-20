@@ -8,17 +8,22 @@ class AuthService extends GetxController {
   static AuthService get to => Get.find();
 
   late Rx<User> user;
+
   Dio dio = Dio();
   RxString _token = ''.obs;
 
   @override
   void onInit() async {
-    super.onInit();
-    String? accessToken = await storage.read(key: "access_token");
-    if (accessToken != null) {
-      _token.value = accessToken;
+    try {
+      super.onInit();
+      String? accessToken = await storage.read(key: "access_token");
+      if (accessToken != null) {
+        _token.value = accessToken;
+      }
+      await this.getUser();
+    } catch (e) {
+      print("Error during onInit: $e");
     }
-    await getUser();
   }
 
   final storage = FlutterSecureStorage();
@@ -42,7 +47,7 @@ class AuthService extends GetxController {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     try {
       Map<String, dynamic> userData = {
         'user_email': email,
@@ -57,16 +62,18 @@ class AuthService extends GetxController {
       );
 
       if (response.statusCode == 201) {
+        print(response.data['access_token']);
         await storage.write(
             key: "access_token", value: response.data['access_token']);
-        await getUser();
+        _token.value = response.data['access_token'];
         print("SignIn Success");
-        Get.offAllNamed('/');
-      } else {
-        print("SignIn Failure");
+        return true;
       }
+      print("SignIn Failure");
+      return false;
     } catch (e) {
       print("Error during sign-in: $e");
+      return false;
     }
   }
 
@@ -82,7 +89,7 @@ class AuthService extends GetxController {
 
       if (response.statusCode == 201) {
         print("SignUp Success");
-        Get.replace('/signin');
+        Get.offAllNamed('/signin');
       } else {
         print("SignUp Failure");
       }
@@ -156,7 +163,7 @@ class AuthService extends GetxController {
       }
 
       user.update((val) {
-        val!.user_nickname!.value = nickname;
+        val!.user_nickname.value = nickname;
       });
 
       return true;

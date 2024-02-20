@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class User {
   final int? user_id;
   final String user_name;
-  RxString? user_nickname;
+  RxString user_nickname;
   final String user_email;
   RxString? user_image;
   final String? user_password;
@@ -21,9 +21,9 @@ class User {
     return {
       'user_id': user_id,
       'user_name': user_name,
-      'user_nickname': user_nickname,
+      'user_nickname': user_nickname.value,
       'user_email': user_email,
-      'user_image': user_image,
+      'user_image': user_image?.value,
       'user_password': user_password,
     };
   }

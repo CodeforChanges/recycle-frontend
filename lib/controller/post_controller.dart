@@ -20,12 +20,30 @@ class PostController extends GetxController {
 
   @override
   void onInit() async {
-    super.onInit();
-    String? accessToken = await storage.read(key: "access_token");
-    if (accessToken != null) {
-      _token.value = accessToken;
+    try {
+      super.onInit();
+      String? accessToken = await storage.read(key: "access_token");
+      if (accessToken != null) {
+        _token.value = accessToken;
+      }
+      await getPosts(page: 0);
+    } catch (e) {
+      print("Error during onInit: $e");
     }
-    await getPosts(page: 0);
+  }
+
+  Future<void> initPostToken() async {
+    try {
+      String? accessToken = await storage.read(key: 'access_token');
+      if (accessToken != null) {
+        _token.value = accessToken;
+        return;
+      }
+      Get.offAllNamed('/signin');
+      print('No token available');
+    } catch (e) {
+      print('Error during initPostToken: $e');
+    }
   }
 
   final storage = FlutterSecureStorage();
@@ -110,7 +128,6 @@ class PostController extends GetxController {
         posts.addAll(response.data
             .map<Post>((post) => Post.fromJson(post['post']))
             .toList());
-        print("searched post list: ${posts.value}");
         return;
       }
       print("get post not successful");
