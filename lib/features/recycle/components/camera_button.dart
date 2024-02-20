@@ -16,46 +16,50 @@ class CameraButton extends StatefulWidget {
 class _CameraButtonState extends State<CameraButton> {
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      backgroundColor: primaryColor,
-      child: const Icon(Icons.camera_alt, color: Colors.white),
-      onPressed: () async {
-        try {
-          await widget.controller.initialize();
+    return Container(
+      child: Center(
+        child: FloatingActionButton(
+          backgroundColor: primaryColor,
+          child: const Icon(Icons.camera_alt, color: Colors.white),
+          onPressed: () async {
+            try {
+              await widget.controller.initialize();
 
-          widget.controller.setFlashMode(FlashMode.off);
+              widget.controller.setFlashMode(FlashMode.off);
 
-          final image = await widget.controller.takePicture();
+              final image = await widget.controller.takePicture();
 
-          if (!mounted) {
-            return;
-          }
+              if (!mounted) {
+                return;
+              }
 
-          // send image to server.
-          //  =====================
-          // get data from server.
+              // send image to server.
+              //  =====================
+              // get data from server.
 
-          Get.rawSnackbar(
-            maxWidth: 344,
-            duration: const Duration(seconds: 5),
-            messageText: Text(
-              '해당 용품은 재활용이 가능합니다.',
-              style: TextStyle(color: Color.fromRGBO(171, 210, 143, 1)),
-              textAlign: TextAlign.center,
-            ),
-            backgroundColor: Color.fromRGBO(46, 49, 42, 1),
-            snackPosition: SnackPosition.TOP,
-          );
+              Get.rawSnackbar(
+                maxWidth: 344,
+                duration: const Duration(seconds: 5),
+                messageText: Text(
+                  '해당 용품은 재활용이 가능합니다.',
+                  style: TextStyle(color: Color.fromRGBO(171, 210, 143, 1)),
+                  textAlign: TextAlign.center,
+                ),
+                backgroundColor: Color.fromRGBO(46, 49, 42, 1),
+                snackPosition: SnackPosition.TOP,
+              );
 
-          // show dialog
-          Get.defaultDialog(
-              titlePadding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-              title: '분리 수거 방법',
-              content: RecycleResultDialog(kindOfRecycle: "투명 페트병"));
-        } catch (e) {
-          print(e);
-        }
-      },
+              // show dialog
+              Get.defaultDialog(
+                  titlePadding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  title: '분리 수거 방법',
+                  content: RecycleResultDialog(kindOfRecycle: "투명 페트병"));
+            } catch (e) {
+              print(e);
+            }
+          },
+        ),
+      ),
     );
   }
 }

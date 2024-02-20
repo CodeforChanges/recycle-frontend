@@ -61,72 +61,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: PostController.to.getPosts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: renderAppBar(),
-            body: loadingSkeleton(),
-            floatingActionButton: addPostBtn(),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            appBar: renderAppBar(),
-            body: Center(
-              child: Text('Error: ${snapshot.error}'),
-            ),
-            floatingActionButton: addPostBtn(),
-          );
-        } else {
-          return GestureDetector(
-            onTap: () {
-              _focusNode.unfocus();
-            },
-            child: Scaffold(
-              appBar: renderAppBar(),
-              body: Container(
-                color: Colors.white,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    textField(),
-                    Expanded(
-                      child: Obx(
-                        () => ListView.builder(
-                          controller: _scrollController,
-                          itemCount: PostController.to.posts.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return InkWell(
-                              onTap: () {
-                                Get.toNamed('/post', arguments: index);
-                              },
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                ),
-                                child: Post(postIndex: index),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    isLoading
-                        ? loadingSkeleton()
-                        : Container(
-                            height: 0,
+    return GestureDetector(
+      onTap: () {
+        _focusNode.unfocus();
+      },
+      child: Scaffold(
+        appBar: renderAppBar(),
+        body: Container(
+          color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              textField(),
+              Expanded(
+                child: Obx(
+                  () => ListView.builder(
+                    controller: _scrollController,
+                    itemCount: PostController.to.posts.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          Get.toNamed('/post', arguments: index);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
                           ),
-                  ],
+                          child: Post(postIndex: index),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-              floatingActionButton: addPostBtn(),
-            ),
-          );
-        }
-      },
+              isLoading
+                  ? loadingSkeleton()
+                  : Container(
+                      height: 0,
+                    ),
+            ],
+          ),
+        ),
+        floatingActionButton: addPostBtn(),
+      ),
     );
   }
 

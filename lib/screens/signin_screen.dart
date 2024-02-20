@@ -124,6 +124,7 @@ class _SignInScreenState extends State<SignInScreen> {
           if (result) {
             await AuthService.to.getUser();
             await PostController.to.initPostToken();
+            PostController.to.getPosts();
             Get.offAllNamed('/');
             return;
           }

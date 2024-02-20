@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:recycle/features/recycle/components/ask_permission_container.dart';
 import 'package:recycle/features/recycle/components/camera_button.dart';
 import 'package:recycle/features/recycle/components/camera_view.dart';
@@ -31,6 +32,20 @@ class _RecycleScreenState extends State<RecycleScreen> {
           case 'CameraAccessDenied':
             // Handle access errors here.
             // 카메라 사용해야만 사용할 수 있다는 다이얼로그 띄우고 메인화면으로 navigate 하기
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('카메라 사용 권한이 필요합니다'),
+                content: Text('카메라 사용을 허용해주세요'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Get.offAllNamed('/');
+                      },
+                      child: Text('확인'))
+                ],
+              ),
+            );
             break;
           default:
             // Handle other errors here.
@@ -71,9 +86,10 @@ class _RecycleScreenState extends State<RecycleScreen> {
                 ],
               ),
               Expanded(
-                  child: CameraButton(
-                controller: controller,
-              )),
+                child: CameraButton(
+                  controller: controller,
+                ),
+              ),
             ],
           ),
         ),
