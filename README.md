@@ -155,16 +155,16 @@ Project Link: [https://github.com/CodeforChanges/recycle-frontend](https://githu
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/CodeforChanges/recycle-frontend.svg?style=for-the-badge
 [contributors-url]: https://github.com/CodeforChanges/recycle-frontend/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/CodeforChanges/recycle-frontend.svg?style=for-the-badge
 [forks-url]: https://github.com/CodeforChanges/recycle-frontend/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/CodeforChanges/recycle-frontend.svg?style=for-the-badge
 [stars-url]: https://github.com/CodeforChanges/recycle-frontend/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/CodeforChanges/recycle-frontend.svg?style=for-the-badge
 [issues-url]: https://github.com/CodeforChanges/recycle-frontend/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[license-shield]: https://img.shields.io/github/license/CodeforChanges/recycle-frontend.svg?style=for-the-badge
+[license-url]: https://github.com/CodeforChanges/recycle-frontend/blob/master/LICENSE.txt
 [product-screenshot]: assets/screenshots/screenshot.png
 [Flutter.io]: https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white
 [Flutter-url]: https://flutter.dev/
