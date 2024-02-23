@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -295,4 +297,41 @@ class PostController extends GetxController {
   }
 
   // 추천 포스트 받아오는 로직 작성 예정.
+  Future<int> getTrashId(String imageUrl) async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/ai/garbage'),
+        data: {
+          'imageUrl': imageUrl,
+        },
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      return response.data['id'];
+    } catch (e) {
+      print('Error while getting trash id is $e');
+      return -1;
+    }
+  }
+
+  Future<String> getTrashKind(int trashId) async {
+    try {
+      sleep(Duration(seconds: 5));
+      Response response = await dio.get(
+        ('${dotenv.get('SERVER')}/ai/garbage/$trashId'),
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode == 200) {
+        return response.data['result']['label'];
+      }
+      return await this.getTrashKind(trashId);
+    } catch (e) {
+      return await this.getTrashKind(trashId);
+    }
+  }
 }
