@@ -38,7 +38,6 @@ class NavigateRecommendButton extends StatelessWidget {
     // navigate to recycle tim screen
     Get.defaultDialog(
       title: "추천 재활용 방법",
-      
       content: RecycleTipDialog(),
     );
   }

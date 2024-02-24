@@ -337,7 +337,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
               final now = DateTime.now().microsecondsSinceEpoch.toString();
 
-              final imagesRef = storage.ref().child('images/${now}');
+              final imagesRef = storage.ref().child('images/${now}.jpg');
 
               final result = await imagesRef.putFile(imageForFirebaseUpload);
 
