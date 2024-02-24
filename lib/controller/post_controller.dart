@@ -334,4 +334,27 @@ class PostController extends GetxController {
       return await this.getTrashKind(trashId);
     }
   }
+
+  Future<void> getRecommendPosts(String type) async {
+    try {
+      Response response = await dio.post(
+        ('${dotenv.get('SERVER')}/search'),
+        data: {"keyword": type},
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Authorization': 'Bearer ${_token.value}'},
+        ),
+      );
+      if (response.statusCode == 201) {
+        recommendPost.clear();
+        recommendPost.addAll(response.data
+            .map<Post>((post) => Post.fromJson(post['post']))
+            .toList());
+        print('recommendPost: $recommendPost');
+        return;
+      }
+    } catch (e) {
+      print('Error while getting recommend posts is $e');
+    }
+  }
 }
