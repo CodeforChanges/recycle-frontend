@@ -31,7 +31,7 @@ class _RecycleResultDialogState extends State<RecycleResultDialog> {
             ),
           ),
           SizedBox(height: 20),
-          NavigateRecommendButton(),
+          NavigateRecommendButton(type: widget.kindOfRecycle),
         ],
       ),
     );

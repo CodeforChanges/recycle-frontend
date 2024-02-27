@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recycle/controller/post_controller.dart';
 import 'package:recycle/features/recycle/components/recycle_tip_dialog.dart';
 import 'package:recycle/utils/color_utils.dart';
 
 class NavigateRecommendButton extends StatelessWidget {
-  const NavigateRecommendButton({super.key});
-
+  NavigateRecommendButton({required this.type, Key? key}) : super(key: key);
+  final String type;
   @override
   Widget build(BuildContext context) {
     return TextButton(
@@ -31,7 +32,9 @@ class NavigateRecommendButton extends StatelessWidget {
     );
   }
 
-  void onClickHandler() {
+  void onClickHandler() async {
+    print("type: $type");
+    await PostController.to.getRecommendPosts(type);
     // close dialog
     navigator
         ?.popUntil((route) => !Get.isDialogOpen! && !Get.isBottomSheetOpen!);

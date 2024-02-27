@@ -1,65 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-
-final List<Map<String, dynamic>> userData = [
-  {
-    'user_name': 'user1',
-    'user_image': 'assets/images/recycle.png',
-    'post_images': [
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-    ],
-    'like_count': 10,
-    'comment_count': 20,
-  },
-  {
-    'user_name': 'user2',
-    'user_image': 'assets/images/recycle.png',
-    'post_images': [
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-    ],
-    'like_count': 10,
-    'comment_count': 20,
-  },
-  {
-    'user_name': 'user3',
-    'user_image': 'assets/images/recycle.png',
-    'post_images': [
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-    ],
-    'like_count': 10,
-    'comment_count': 20,
-  },
-  {
-    'user_name': 'user4',
-    'user_image': 'assets/images/recycle.png',
-    'post_images': [
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-    ],
-    'like_count': 10,
-    'comment_count': 20,
-  },
-  {
-    'user_name': 'user5',
-    'user_image': 'assets/images/recycle.png',
-    'post_images': [
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-      'assets/images/recycle.png',
-    ],
-    'like_count': 10,
-    'comment_count': 20,
-  },
-];
-
-enum IndicatorType { post, image }
+import 'package:recycle/controller/post_controller.dart';
+import 'package:recycle/models/post.dart';
 
 class RecycleTipDialog extends StatefulWidget {
   const RecycleTipDialog({super.key});
@@ -74,16 +16,21 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250,
-      child: Column(children: [
-        returnPostSlider(),
-        returnSliderDescription(),
-        SizedBox(
-          height: 20,
-        ),
-        returnCloseButton(),
-      ]),
-    );
+        width: 250,
+        child: PostController.to.recommendPost.length == 0
+            ? Center(
+                child: Text('No recommend posts founded'),
+              )
+            : Column(
+                children: [
+                  returnPostSlider(),
+                  returnSliderDescription(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  returnCloseButton(),
+                ],
+              ));
   }
 
   ElevatedButton returnCloseButton() {
@@ -103,7 +50,7 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
     );
   }
 
-  GestureDetector returnPost(int userIndex) {
+  GestureDetector returnPost(int postIndex) {
     return GestureDetector(
       onTap: () {
         // post 컨트롤러 recommendIndex 값 업데이트;
@@ -118,10 +65,16 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
         )),
         child: Stack(
           children: [
-            returnImageSlider(userIndex),
-            returnPostFooter(userData[userIndex]),
-            returnDotIndicator(
-                imageIndex, userData[userIndex]['post_images'].length),
+            returnImageSlider(postIndex),
+            returnPostFooter(
+                PostController.to.recommendPost[postIndex].post_owner.value,
+                PostController.to.recommendPost[postIndex].likesCount?.value ??
+                    0,
+                PostController
+                        .to.recommendPost[postIndex].post_comments?.length ??
+                    0),
+            returnDotIndicator(imageIndex,
+                PostController.to.recommendPost[postIndex].post_images.length),
           ],
         ),
       ),
@@ -167,7 +120,7 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
     );
   }
 
-  Align returnPostFooter(Map<String, dynamic> user) {
+  Align returnPostFooter(PostOwner owner, int likeCount, int commentCount) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -178,10 +131,11 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Center(
-              child: returnUserInfo(user['user_name'] ?? ''),
+              child: returnUserInfo(
+                  owner.user_nickname.value, owner.user_image?.value),
             ),
             Center(
-              child: returnPostInfo(user['like_count'], user['comment_count']),
+              child: returnPostInfo(likeCount, commentCount),
             )
           ],
         ),
@@ -189,14 +143,14 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
     );
   }
 
-  Container returnUserInfo(String userName) {
+  Container returnUserInfo(String userName, String? userImage) {
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundImage: AssetImage('assets/images/recycle.png'),
+            backgroundImage: userImage == null ? null : NetworkImage(userImage),
           ),
           SizedBox(width: 10),
           Text(userName,
@@ -237,14 +191,20 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
     );
   }
 
-  CarouselSlider returnImageSlider(int userIndex) {
+  CarouselSlider returnImageSlider(int postIndex) {
     return CarouselSlider(
-      items: List.generate(userData[userIndex]['post_images']?.length ?? 0,
+      items: List.generate(
+          PostController.to.recommendPost[postIndex].post_images.length,
           (index) {
         return Builder(builder: (BuildContext context) {
-          return FittedBox(
+          return Image.network(
+            PostController.to.recommendPost[postIndex].post_images[index]
+                    ['image_link'] ??
+                "",
             fit: BoxFit.cover,
-            child: Image.asset(userData[userIndex]['post_images'][index]),
+            errorBuilder: (context, error, stackTrace) => Center(
+              child: Text('Error while getting image.'),
+            ),
           );
         });
       }).toList(),
@@ -265,16 +225,20 @@ class _RecycleTipDialogState extends State<RecycleTipDialog> {
 
   CarouselSlider returnPostSlider() {
     return CarouselSlider(
-        options: CarouselOptions(
-          onPageChanged: (index, reason) => {
-            setState(() {
-              imageIndex = 0;
-            })
-          },
-          height: 252,
-          viewportFraction: 1.0,
-          scrollDirection: Axis.horizontal,
-        ),
-        items: List.generate(userData.length, (index) => returnPost(index)));
+      options: CarouselOptions(
+        onPageChanged: (index, reason) => {
+          setState(() {
+            imageIndex = 0;
+          })
+        },
+        height: 252,
+        viewportFraction: 1.0,
+        scrollDirection: Axis.horizontal,
+      ),
+      items: List.generate(
+        PostController.to.recommendPost.length,
+        (index) => returnPost(index),
+      ),
+    );
   }
 }
