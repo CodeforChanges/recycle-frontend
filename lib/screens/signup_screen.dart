@@ -20,11 +20,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: renderAppBar(),
-      body: SafeArea(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
         child: Container(
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.of(context).size.height - 100.0,
           width: double.infinity,
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
